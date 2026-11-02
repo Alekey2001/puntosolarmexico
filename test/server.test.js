@@ -44,10 +44,23 @@ test('HEAD responde sin cuerpo y health confirma disponibilidad', async () => {
   assert.deepEqual(await health.json(), { status: 'ok' });
 });
 
-test('no se publican archivos internos ni rutas inexistentes', async () => {
+test('las rutas del frontend reciben el HTML para React Router', async () => {
+  const index = await (await fetch(baseURL)).text();
+  for (const route of ['/cotizacion', '/proyectos/residencial?preview=1']) {
+    const response = await fetch(`${baseURL}${route}`);
+    assert.equal(response.status, 200);
+    assert.match(response.headers.get('content-type'), /text\/html/);
+    assert.equal(await response.text(), index);
+  }
+});
+
+test('el fallback no publica archivos internos', async () => {
+  const index = await (await fetch(baseURL)).text();
   for (const route of ['/package.json', '/pnpm-lock.yaml', '/server.js', '/README.md', '/.env', '/.cursor', '/.git/config', '/src/main.jsx', '/vite.config.js', '/tailwind.config.js', '/no-existe', '/assets/css/no-existe.css', '/assets/%2e%2e%2fpackage.json']) {
     const response = await fetch(`${baseURL}${route}`);
-    assert.ok([403, 404].includes(response.status), `${route}: ${response.status}`);
-    assert.doesNotMatch(await response.text(), /"scripts"|ref: refs\/heads/);
+    assert.ok([200, 403, 404].includes(response.status), `${route}: ${response.status}`);
+    const body = await response.text();
+    if (response.status === 200) assert.equal(body, index, route);
+    assert.doesNotMatch(body, /"scripts"|ref: refs\/heads/);
   }
 });
