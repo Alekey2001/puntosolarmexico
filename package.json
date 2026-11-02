@@ -11,11 +11,21 @@
   },
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js",
-    "build": "node --check server.js",
-    "test": "node --test"
+    "dev": "vite",
+    "dev:server": "node --watch server.js",
+    "build": "node --check server.js && vite build",
+    "test": "pnpm build && node --test"
   },
   "dependencies": {
-    "express": "5.3.0"
+    "@fontsource/roboto": "5.3.0",
+    "express": "5.3.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "4.3.3",
+    "@vitejs/plugin-react": "6.1.2",
+    "tailwindcss": "4.3.3",
+    "vite": "8.3.5"
   }
 }

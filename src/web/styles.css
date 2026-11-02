@@ -1,0 +1,28 @@
+@import '@fontsource/roboto/latin-400.css';
+@import '@fontsource/roboto/latin-400-italic.css';
+@import '@fontsource/roboto/latin-700.css';
+@import '@fontsource/roboto/latin-700-italic.css';
+@import 'tailwindcss';
+
+@config '../../tailwind.config.js';
+
+@layer base {
+  :root {
+    font-family: 'Roboto', sans-serif;
+    font-synthesis: none;
+    color: var(--color-primary);
+    background-color: var(--color-primary);
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+}

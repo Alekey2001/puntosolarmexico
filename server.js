@@ -1,8 +1,8 @@
 import express from 'express';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-const indexPath = fileURLToPath(new URL('./index.html', import.meta.url));
-const assetsPath = fileURLToPath(new URL('./assets/', import.meta.url));
+const indexPath = fileURLToPath(new URL('./dist/index.html', import.meta.url));
+const assetsPath = fileURLToPath(new URL('./dist/assets/', import.meta.url));
 
 export const app = express();
 app.disable('x-powered-by');

@@ -14,17 +14,25 @@ after(() => new Promise((resolve, reject) => {
   server.close((error) => error ? reject(error) : resolve());
 }));
 
-test('la página y los estilos se entregan con su tipo de contenido', async () => {
+test('la página y los recursos compilados se entregan con su tipo de contenido', async () => {
   for (const route of ['/', '/index.html?preview=1']) {
     const response = await fetch(`${baseURL}${route}`);
     assert.equal(response.status, 200);
     assert.match(response.headers.get('content-type'), /text\/html/);
-    assert.match(await response.text(), /Punto Solar México/);
+    const html = await response.text();
+    assert.match(html, /Punto Solar México/);
+    assert.doesNotMatch(html, /\/src\/main\.jsx/);
+    const script = html.match(/src="(\/assets\/[^\"]+\.js)"/);
+    const stylesheet = html.match(/href="(\/assets\/[^\"]+\.css)"/);
+    assert.ok(script, 'El HTML debe cargar el bundle de React');
+    assert.ok(stylesheet, 'El HTML debe cargar los estilos compilados');
+    for (const [asset, contentType] of [[script[1], /javascript/], [stylesheet[1], /text\/css/]]) {
+      const resource = await fetch(`${baseURL}${asset}`);
+      assert.equal(resource.status, 200, asset);
+      assert.match(resource.headers.get('content-type'), contentType);
+      assert.ok((await resource.text()).length > 0, asset);
+    }
   }
-  const response = await fetch(`${baseURL}/assets/css/styles.css`);
-  assert.equal(response.status, 200);
-  assert.match(response.headers.get('content-type'), /text\/css/);
-  assert.match(await response.text(), /:root/);
 });
 
 test('HEAD responde sin cuerpo y health confirma disponibilidad', async () => {
@@ -37,7 +45,7 @@ test('HEAD responde sin cuerpo y health confirma disponibilidad', async () => {
 });
 
 test('no se publican archivos internos ni rutas inexistentes', async () => {
-  for (const route of ['/package.json', '/server.js', '/README.md', '/.env', '/.git/config', '/no-existe', '/assets/css/no-existe.css', '/assets/%2e%2e%2fpackage.json']) {
+  for (const route of ['/package.json', '/pnpm-lock.yaml', '/server.js', '/README.md', '/.env', '/.cursor', '/.git/config', '/src/main.jsx', '/vite.config.js', '/tailwind.config.js', '/no-existe', '/assets/css/no-existe.css', '/assets/%2e%2e%2fpackage.json']) {
     const response = await fetch(`${baseURL}${route}`);
     assert.ok([403, 404].includes(response.status), `${route}: ${response.status}`);
     assert.doesNotMatch(await response.text(), /"scripts"|ref: refs\/heads/);
