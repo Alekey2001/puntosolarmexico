@@ -1,6 +1,6 @@
 import express from 'express';
 import path from 'path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -14,8 +14,8 @@ app.use((_req, res, next) => {
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 app.use(express.static(path.join(__dirname, 'dist')));
 
-// Express 5 requiere un comodín con nombre; incluye también la ruta raíz.
-app.get('/{*splat}', (_req, res) => {
+// En Express 5, '*' falla al arrancar; esta expresión cubre todas las rutas.
+app.get(/.*/, (_req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
@@ -27,7 +27,5 @@ app.use((error, _req, res, next) => {
   res.status(status).type('text').send(status === 500 ? 'Error interno del servidor.' : 'Recurso no disponible.');
 });
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => { console.log(`Servidor en puerto ${PORT}`); });
-}
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => { console.log(`Servidor en puerto ${PORT}`); });
