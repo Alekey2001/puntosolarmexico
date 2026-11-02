@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "Sitio web de Punto Solar México con Node.js y Express",
+  "packageManager": "pnpm@11.1.2",
   "type": "module",
   "main": "server.js",
   "engines": {

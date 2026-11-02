@@ -7,11 +7,11 @@ Sitio web con **Node.js 24.22.1 y Express**, preparado para desplegar como aplic
 Usa Node.js 24.22.1, indicado en [package.json](package.json), [.nvmrc](.nvmrc) y [.node-version](.node-version).
 
 ```powershell
-npm ci
-npm start
+pnpm install --frozen-lockfile
+pnpm start
 ```
 
-Abre <http://localhost:3000>. Usa `npm run dev` para reiniciar automáticamente al editar el servidor. Ejecuta `npm run build` para comprobar la sintaxis y `npm test` para verificar las respuestas HTTP. Esta base no necesita transpilar archivos: el build valida el servidor, sin generar una carpeta `dist`.
+Abre <http://localhost:3000>. Usa `pnpm dev` para reiniciar automáticamente al editar el servidor. Ejecuta `pnpm build` para comprobar la sintaxis y `pnpm test` para verificar las respuestas HTTP. Esta base no necesita transpilar archivos: el build valida el servidor, sin generar una carpeta `dist`.
 
 ## Configuración en Hostinger
 
@@ -25,12 +25,14 @@ En **Sitios web → Añadir sitio web → Aplicación web Node.js**, importa el 
 | Directorio raíz del proyecto | `.` (raíz del repositorio) |
 | Framework | Express |
 | Node.js | 24.x en el selector; versión del proyecto: 24.22.1 |
-| Gestor de paquetes | npm |
-| Instalación, si se solicita | `npm ci` |
-| Build, si se solicita | `npm run build` |
-| Inicio | `npm start` |
+| Gestor de paquetes | pnpm 11.1.2 (detectado por `pnpm-lock.yaml`) |
+| Instalación, si se solicita | `pnpm install --frozen-lockfile` |
+| Build, si se solicita | `pnpm build` |
+| Inicio | `pnpm start` |
 | Archivo de entrada, si se solicita | `server.js` |
 | Variables de entorno | `NODE_ENV=production` |
+
+La migración conserva el repositorio, la rama y la integración GitHub existentes. En la aplicación Node.js que ya tienes en Hostinger, selecciona pnpm como gestor si el panel ofrece esa opción y despliega el commit actualizado; no desconectes ni vuelvas a importar el repositorio.
 
 El servidor escucha en `0.0.0.0` y utiliza `PORT` del entorno, con `3000` como valor predeterminado. No necesita base de datos. Hostinger documenta la selección de la serie 24.x; comprueba en los logs qué versión exacta asigna. Declarar 24.22.1 en el repositorio no instala esa versión en Hostinger.
 
@@ -54,7 +56,7 @@ Guías oficiales:
 - [index.html](index.html): página temporal de «Próximamente».
 - [assets/css/styles.css](assets/css/styles.css): estilos adaptables.
 - [test/server.test.js](test/server.test.js): pruebas HTTP.
-- [package-lock.json](package-lock.json): versiones reproducibles de dependencias.
+- [pnpm-lock.yaml](pnpm-lock.yaml): versiones reproducibles de dependencias.
 
 Solo se sirven la página inicial y los recursos de `assets`. La configuración, el código del servidor y los archivos de Git no se publican por HTTP.
 
@@ -63,8 +65,8 @@ Solo se sirven la página inicial y los recursos de `assets`. La configuración,
 Después de editar, ejecuta las comprobaciones y sube únicamente los archivos revisados:
 
 ```powershell
-npm run build
-npm test
+pnpm build
+pnpm test
 git status
 git add index.html assets/css/styles.css
 git commit -m "Actualizar sitio web"
