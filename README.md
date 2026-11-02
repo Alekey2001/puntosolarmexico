@@ -1,88 +1,76 @@
-# Punto Solar México
+﻿# Punto Solar México
 
-Base del sitio web para publicar mediante Git en el hosting web de Hostinger.
-Incluye una página temporal de «Próximamente», adaptable a celular y escritorio.
+Sitio web con **Node.js 24.22.1 y Express**, preparado para desplegar como aplicación Node.js en Hostinger desde GitHub.
 
-## Archivos
+## Desarrollo local
 
-- [index.html](index.html): página inicial.
-- [assets/css/styles.css](assets/css/styles.css): estilos.
-- [.htaccess](.htaccess): página predeterminada y protección de archivos de desarrollo para Apache/LiteSpeed.
-- [.gitignore](.gitignore): evita subir credenciales y archivos locales habituales.
+Usa Node.js 24.22.1, indicado en [package.json](package.json), [.nvmrc](.nvmrc) y [.node-version](.node-version).
 
-No requiere Node.js, npm, base de datos ni un comando de compilación. Puedes abrir
-[index.html](index.html) en el navegador para revisar la página localmente.
+```powershell
+npm ci
+npm start
+```
 
-## Conectar Hostinger mediante Git
+Abre <http://localhost:3000>. Usa `npm run dev` para reiniciar automáticamente al editar el servidor. Ejecuta `npm run build` para comprobar la sintaxis y `npm test` para verificar las respuestas HTTP. Esta base no necesita transpilar archivos: el build valida el servidor, sin generar una carpeta `dist`.
 
-Esta guía corresponde al hosting web con la herramienta Git de hPanel. Los nombres
-de las opciones pueden variar según el plan y la versión del panel. Si estás en
-Hostinger Website Builder o en el flujo de aplicaciones Node.js, estos campos no
-corresponden a ese producto.
+## Configuración en Hostinger
 
-1. En hPanel, abre **Sitios web → Administrar / Panel** del dominio correspondiente.
-2. Busca **Git**, normalmente dentro de **Avanzado**.
-3. En la sección para crear un repositorio, utiliza:
+En **Sitios web → Añadir sitio web → Aplicación web Node.js**, importa el repositorio mediante la integración de GitHub. Si ya creaste la aplicación, vuelve a detectar el proyecto o despliega el último commit de `main`.
 
-   | Campo | Valor |
-   | --- | --- |
-   | URL del repositorio público (HTTPS) | `https://github.com/Alekey2001/puntosolarmexico.git` |
-   | URL SSH (para repositorios privados o acceso mediante clave) | `git@github.com:Alekey2001/puntosolarmexico.git` |
-   | Rama | `main` |
-   | Directorio de instalación | La raíz web del dominio, normalmente `public_html` |
+| Campo | Valor |
+| --- | --- |
+| Repositorio | `Alekey2001/puntosolarmexico` |
+| URL | `https://github.com/Alekey2001/puntosolarmexico` |
+| Rama | `main` |
+| Directorio raíz del proyecto | `.` (raíz del repositorio) |
+| Framework | Express |
+| Node.js | 24.x en el selector; versión del proyecto: 24.22.1 |
+| Gestor de paquetes | npm |
+| Instalación, si se solicita | `npm ci` |
+| Build, si se solicita | `npm run build` |
+| Inicio | `npm start` |
+| Archivo de entrada, si se solicita | `server.js` |
+| Variables de entorno | `NODE_ENV=production` |
 
-   **Directorio:** si el formulario indica que la ruta es relativa a `public_html`,
-   deja el campo vacío para publicar en la raíz. No escribas `public_html` de nuevo
-   en ese caso, porque crearías una subcarpeta. Si el panel solicita una ruta completa,
-   selecciona la raíz web de ese dominio. Revisa la ayuda del campo antes de crear.
+El servidor escucha en `0.0.0.0` y utiliza `PORT` del entorno, con `3000` como valor predeterminado. No necesita base de datos. Hostinger documenta la selección de la serie 24.x; comprueba en los logs qué versión exacta asigna. Declarar 24.22.1 en el repositorio no instala esa versión en Hostinger.
 
-4. El destino debe estar vacío para la instalación inicial. Si contiene una página
-   predeterminada o un sitio existente, respáldalo antes de mover o eliminar archivos.
-   Un archivo `index.php` anterior puede interferir con la página inicial.
-5. Crea la conexión y pulsa **Deploy / Implementar** si el panel lo solicita.
-6. Abre el dominio y confirma que aparece «Punto Solar México». Activa el certificado
-   SSL y la opción de forzar HTTPS en hPanel cuando el dominio ya apunte al hosting.
+Este despliegue usa una aplicación Node.js. No requiere seleccionar `public_html`, configurar `.htaccess` ni usar el flujo Git del hosting estático anterior.
 
-### Si el repositorio es privado
+Si aparece **«Repositorio o rama no encontrados»**:
 
-1. Genera o consulta la clave SSH para Git que ofrece Hostinger en hPanel.
-2. Copia únicamente la **clave pública**.
-3. En GitHub, abre este repositorio → **Settings → Deploy keys → Add deploy key**.
-4. Pega la clave pública y deja **Allow write access** desmarcado: Hostinger solo
-   necesita leer el repositorio.
-5. En Hostinger usa la URL SSH indicada en la tabla.
+1. Confirma el repositorio y la rama `main`.
+2. Confirma que [package.json](package.json) está en la raíz seleccionada y contiene el script `"start": "node server.js"`.
+3. Si el repositorio es privado, autoriza el acceso a ese repositorio en la integración de GitHub con Hostinger.
+4. Actualiza la lista de repositorios o vuelve a importar para que Hostinger lea el último commit. Revisa los logs si persiste el error.
 
-Nunca subas claves privadas, contraseñas ni tokens al repositorio.
+Guías oficiales:
 
-### Despliegue automático (opcional)
+- [Desplegar una aplicación Node.js](https://www.hostinger.com/support/how-to-deploy-a-nodejs-website-in-hostinger/)
+- [Seleccionar la versión de Node.js](https://www.hostinger.com/support/how-to-select-the-node-js-version-for-your-application/)
 
-Si tu panel ofrece **Auto deployment**, sigue sus indicaciones para configurar en
-GitHub el webhook que proporciona Hostinger. Normalmente se encuentra en el
-repositorio → **Settings → Webhooks → Add webhook** y utiliza el evento **push**.
-Usa exactamente la URL, el tipo de contenido y el secreto que indique el panel;
-no guardes esos valores en este repositorio. Sin esa configuración, publica cada
-actualización con el botón **Deploy / Implementar** de Hostinger.
+## Estructura
+
+- [server.js](server.js): servidor Express, rutas públicas y comprobación `/health`.
+- [index.html](index.html): página temporal de «Próximamente».
+- [assets/css/styles.css](assets/css/styles.css): estilos adaptables.
+- [test/server.test.js](test/server.test.js): pruebas HTTP.
+- [package-lock.json](package-lock.json): versiones reproducibles de dependencias.
+
+Solo se sirven la página inicial y los recursos de `assets`. La configuración, el código del servidor y los archivos de Git no se publican por HTTP.
 
 ## Actualizar el sitio
 
-Desde esta carpeta, después de editar y revisar los archivos:
+Después de editar, ejecuta las comprobaciones y sube únicamente los archivos revisados:
 
 ```powershell
+npm run build
+npm test
 git status
 git add index.html assets/css/styles.css
 git commit -m "Actualizar sitio web"
 git push origin main
 ```
 
-Agrega explícitamente otros archivos si también los modificaste. Después despliega
-desde hPanel, salvo que ya hayas habilitado el despliegue automático.
+Incluye otros archivos explícitamente si también los modificaste. Confirma el resultado del despliegue en Hostinger; subir a GitHub por sí solo no demuestra que la aplicación esté publicada.
 
-## Antes de lanzar la versión definitiva
-
-- Sustituir el contenido temporal por la información real del negocio.
-- Agregar datos de contacto verificados y aviso de privacidad si se recopilan datos.
-- Quitar la etiqueta `meta name="robots" content="noindex, follow"` de la página
-  cuando el contenido definitivo esté listo para aparecer en buscadores.
-- Verificar el dominio, HTTPS y la visualización en celular.
-
-La conexión con GitHub no configura por sí sola el dominio ni la cuenta de Hostinger.
+Antes del lanzamiento definitivo, reemplaza el contenido temporal, agrega datos reales de contacto y retira la etiqueta `noindex` de la página cuando esté lista para aparecer en buscadores. Nunca guardes credenciales en el repositorio.
