@@ -1,0 +1,14 @@
+# Configuración para hosting web Apache / LiteSpeed.
+DirectoryIndex index.html
+Options -Indexes
+
+# No publicar metadatos de desarrollo ni archivos de configuración.
+<FilesMatch "(?i)^(\..*|README\.md|LICENSE(?:\..*)?|package(?:-lock)?\.json)$">
+  Require all denied
+</FilesMatch>
+
+# Bloquear acceso HTTP a directorios ocultos, conservando .well-known para SSL.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule (^|/)\.(?!well-known(?:/|$)) - [F,L]
+</IfModule>
