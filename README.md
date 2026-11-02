@@ -1,78 +1,26 @@
-﻿# Punto Solar México
+﻿# Sistema Integral de Gestión y Web Comercial - Punto Solar México
 
-Sitio web con **Node.js 24.22.1 y Express**, preparado para desplegar como aplicación Node.js en Hostinger desde GitHub.
+Plataforma digital de alto rendimiento desarrollada para **Punto Solar México**, empresa líder en la transición hacia energías limpias y renovables. Este sistema centraliza la captación de leads comerciales y optimiza el flujo operativo de ventas a través de una arquitectura dual.
 
-## Desarrollo local
+## 🏗 Arquitectura y Colaboración Tecnológica
 
-Usa Node.js 24.22.1, indicado en [package.json](package.json), [.nvmrc](.nvmrc) y [.node-version](.node-version).
+Este proyecto está diseñado, estructurado y mantenido bajo la arquitectura tecnológica de **AIACO**. 
 
-```powershell
-pnpm install --frozen-lockfile
-pnpm start
-```
+AIACO provee la infraestructura de desarrollo, aplicando estándares de seguridad, escalabilidad y eficiencia operativa. La solución integra un ecosistema robusto basado en Node.js, asegurando tiempos de respuesta óptimos para el cliente final y una gestión de datos fluida para la administración interna de Punto Solar México.
 
-Abre <http://localhost:3000>. Usa `pnpm dev` para reiniciar automáticamente al editar el servidor. Ejecuta `pnpm build` para comprobar la sintaxis y `pnpm test` para verificar las respuestas HTTP. Esta base no necesita transpilar archivos: el build valida el servidor, sin generar una carpeta `dist`.
+## 📦 Estructura del Sistema
 
-## Configuración en Hostinger
+El ecosistema se divide en dos módulos interconectados:
 
-En **Sitios web → Añadir sitio web → Aplicación web Node.js**, importa el repositorio mediante la integración de GitHub. Si ya creaste la aplicación, vuelve a detectar el proyecto o despliega el último commit de `main`.
+1. **Plataforma Web (Front-Facing):** Landing page optimizada para la conversión. Interfaz rápida, accesible y estructurada para guiar al usuario final hacia la cotización de sistemas solares.
+2. **Mini-CRM Administrativo (Back-Office):** Panel de control privado. Permite la visualización, clasificación y seguimiento del flujo de prospectos (leads) captados desde la web, organizado en estados operativos.
 
-| Campo | Valor |
-| --- | --- |
-| Repositorio | `Alekey2001/puntosolarmexico` |
-| URL | `https://github.com/Alekey2001/puntosolarmexico` |
-| Rama | `main` |
-| Directorio raíz del proyecto | `.` (raíz del repositorio) |
-| Framework | Express |
-| Node.js | 24.x en el selector; versión del proyecto: 24.22.1 |
-| Gestor de paquetes | pnpm 11.1.2 (detectado por `pnpm-lock.yaml`) |
-| Instalación, si se solicita | `pnpm install --frozen-lockfile` |
-| Build, si se solicita | `pnpm build` |
-| Inicio | `pnpm start` |
-| Archivo de entrada, si se solicita | `server.js` |
-| Variables de entorno | `NODE_ENV=production` |
+## 🚀 Despliegue y Entorno de Desarrollo
 
-La migración conserva el repositorio, la rama y la integración GitHub existentes. En la aplicación Node.js que ya tienes en Hostinger, selecciona pnpm como gestor si el panel ofrece esa opción y despliega el commit actualizado; no desconectes ni vuelvas a importar el repositorio.
+El proyecto utiliza **pnpm** para garantizar resoluciones de dependencias rápidas y eficientes en el uso de disco.
 
-El servidor escucha en `0.0.0.0` y utiliza `PORT` del entorno, con `3000` como valor predeterminado. No necesita base de datos. Hostinger documenta la selección de la serie 24.x; comprueba en los logs qué versión exacta asigna. Declarar 24.22.1 en el repositorio no instala esa versión en Hostinger.
+### Comandos de Ejecución
 
-Este despliegue usa una aplicación Node.js. No requiere seleccionar `public_html`, configurar `.htaccess` ni usar el flujo Git del hosting estático anterior.
-
-Si aparece **«Repositorio o rama no encontrados»**:
-
-1. Confirma el repositorio y la rama `main`.
-2. Confirma que [package.json](package.json) está en la raíz seleccionada y contiene el script `"start": "node server.js"`.
-3. Si el repositorio es privado, autoriza el acceso a ese repositorio en la integración de GitHub con Hostinger.
-4. Actualiza la lista de repositorios o vuelve a importar para que Hostinger lea el último commit. Revisa los logs si persiste el error.
-
-Guías oficiales:
-
-- [Desplegar una aplicación Node.js](https://www.hostinger.com/support/how-to-deploy-a-nodejs-website-in-hostinger/)
-- [Seleccionar la versión de Node.js](https://www.hostinger.com/support/how-to-select-the-node-js-version-for-your-application/)
-
-## Estructura
-
-- [server.js](server.js): servidor Express, rutas públicas y comprobación `/health`.
-- [index.html](index.html): página temporal de «Próximamente».
-- [assets/css/styles.css](assets/css/styles.css): estilos adaptables.
-- [test/server.test.js](test/server.test.js): pruebas HTTP.
-- [pnpm-lock.yaml](pnpm-lock.yaml): versiones reproducibles de dependencias.
-
-Solo se sirven la página inicial y los recursos de `assets`. La configuración, el código del servidor y los archivos de Git no se publican por HTTP.
-
-## Actualizar el sitio
-
-Después de editar, ejecuta las comprobaciones y sube únicamente los archivos revisados:
-
-```powershell
-pnpm build
-pnpm test
-git status
-git add index.html assets/css/styles.css
-git commit -m "Actualizar sitio web"
-git push origin main
-```
-
-Incluye otros archivos explícitamente si también los modificaste. Confirma el resultado del despliegue en Hostinger; subir a GitHub por sí solo no demuestra que la aplicación esté publicada.
-
-Antes del lanzamiento definitivo, reemplaza el contenido temporal, agrega datos reales de contacto y retira la etiqueta `noindex` de la página cuando esté lista para aparecer en buscadores. Nunca guardes credenciales en el repositorio.
+1. **Instalación de dependencias:**
+   ```bash
+   pnpm install
