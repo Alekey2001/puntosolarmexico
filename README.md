@@ -41,27 +41,3 @@ El proyecto utiliza **pnpm** para garantizar resoluciones de dependencias rápid
    ```bash
    pnpm test
    ```
-
-### Frontend
-
-- [src/web/components/Hero.jsx](src/web/components/Hero.jsx): imagen temporal de Unsplash, overlay Azul Petróleo al 70% y CTA visual. La propiedad `onQuoteRequest` permite conectar la cotización cuando se defina su destino.
-- [src/web/pages/Home.jsx](src/web/pages/Home.jsx): vista principal.
-- [src/web/styles.css](src/web/styles.css): Roboto local en Regular, Italic, Bold y Bold Italic; estilos globales y entrada de Tailwind CSS.
-- [tailwind.config.js](tailwind.config.js): colores `primary`, `accent` y `success`; configuración cargada mediante `@config` en Tailwind CSS 4.
-- [vite.config.js](vite.config.js): integración de React y Tailwind para generar `dist/`.
-
-### Hostinger: aplicación Node.js existente
-
-Conserva la integración de GitHub, el repositorio, la rama, el dominio y las variables actuales. Configura estos comandos en la aplicación existente:
-
-| Paso | Comando |
-| --- | --- |
-| Instalar (incluye las herramientas necesarias para compilar) | `pnpm install --frozen-lockfile --prod=false` |
-| Build | `pnpm build` |
-| Inicio | `pnpm start` |
-
-[server.js](server.js) sirve exclusivamente el HTML y los recursos compilados de `dist/`; mantiene `/health`, la escucha en `0.0.0.0` y el puerto indicado por `PORT` (3000 de forma predeterminada). Es necesario compilar antes del arranque. `dist/` se genera durante el despliegue y no se guarda en Git.
-
-Node.js continúa fijado en 24.22.1 y pnpm en 11.1.2. Esta configuración local no publica cambios en Hostinger.
-
-Referencias: [estructura de Stella Solar](https://stellasolar.mx/), [Tailwind con Vite](https://tailwindcss.com/docs/installation/using-vite) y [configuración JavaScript de Tailwind](https://tailwindcss.com/docs/functions-and-directives#config).

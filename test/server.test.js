@@ -1,18 +1,45 @@
 import assert from 'node:assert/strict';
 import { after, before, test } from 'node:test';
 import { once } from 'node:events';
-import { app } from '../server.js';
+import { spawn } from 'node:child_process';
+import { createServer } from 'node:net';
+import { fileURLToPath } from 'node:url';
 
 let server;
 let baseURL;
 before(async () => {
-  server = app.listen(0, '127.0.0.1');
-  await once(server, 'listening');
-  baseURL = `http://127.0.0.1:${server.address().port}`;
+  const reservation = createServer().listen(0, '127.0.0.1');
+  await once(reservation, 'listening');
+  const port = reservation.address().port;
+  await new Promise((resolve, reject) => {
+    reservation.close((error) => error ? reject(error) : resolve());
+  });
+  baseURL = `http://127.0.0.1:${port}`;
+
+  // Verifica el arranque por importación ESM, como el gestor del hosting.
+  server = spawn(process.execPath, ['--input-type=module', '--eval', "await import('./server.js');"], {
+    cwd: fileURLToPath(new URL('../', import.meta.url)),
+    env: { ...process.env, PORT: String(port) },
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  let errors = '';
+  server.stderr.on('data', (chunk) => { errors += chunk; });
+  const output = await Promise.race([
+    once(server.stdout, 'data'),
+    once(server, 'exit').then(([code]) => {
+      throw new Error(`El servidor terminó antes de arrancar (${code}): ${errors}`);
+    }),
+  ]);
+  assert.match(output[0].toString(), new RegExp(`Servidor en puerto ${port}`));
+}, { timeout: 10000 });
+
+after(async () => {
+  if (server && server.exitCode === null && server.signalCode === null) {
+    const exited = once(server, 'exit');
+    server.kill();
+    await exited;
+  }
 });
-after(() => new Promise((resolve, reject) => {
-  server.close((error) => error ? reject(error) : resolve());
-}));
 
 test('la página y los recursos compilados se entregan con su tipo de contenido', async () => {
   for (const route of ['/', '/index.html?preview=1']) {

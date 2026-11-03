@@ -1,0 +1,180 @@
+diff --git a/src/web/components/Hero.jsx b/src/web/components/Hero.jsx
+index 95ce0d6..a508e77 100644
+--- a/src/web/components/Hero.jsx
++++ b/src/web/components/Hero.jsx
+@@ -1,48 +1,47 @@
+-const solarImage = 'https://images.unsplash.com/photo-1509391366360-2e959784a276';
++﻿// NOTA: Reemplazar 'temp-hero.svg' por la fotografía final en src/assets/media/.
++import heroImage from '../../assets/media/temp-hero.svg';
++
++const solutions = [
++  ['residencial', 'Residencial', 'Energía solar para tu hogar.'],
++  ['comercial', 'Comercial', 'Una solución a la medida de tu negocio.'],
++  ['industrial', 'Industrial', 'Energía para impulsar tu operación.'],
++];
+ 
+ export default function Hero({ onQuoteRequest }) {
+-  return (
+-    <section
+-      aria-labelledby="hero-title"
+-      className="relative isolate flex min-h-screen min-h-svh items-center overflow-hidden bg-primary px-6 py-24 text-white sm:px-10 lg:px-16"
+-    >
+-      <img
+-        src={`${solarImage}?auto=format&fit=crop&w=2400&q=85`}
+-        srcSet={`${solarImage}?auto=format&fit=crop&w=768&q=80 768w, ${solarImage}?auto=format&fit=crop&w=1280&q=85 1280w, ${solarImage}?auto=format&fit=crop&w=2400&q=85 2400w`}
+-        sizes="100vw"
+-        alt=""
+-        aria-hidden="true"
+-        fetchPriority="high"
+-        width="2400"
+-        height="1600"
+-        className="absolute inset-0 -z-20 size-full object-cover object-[60%_center]"
+-      />
+-      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-primary/70" />
++  const ctaClass = 'mt-9 inline-flex min-h-14 items-center justify-center rounded-md bg-accent px-7 py-4 font-bold text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white';
+ 
+-      <div className="mx-auto w-full max-w-7xl">
+-        <p className="mb-8 flex items-center gap-3 text-xs font-bold tracking-[0.2em] sm:text-sm">
+-          <span aria-hidden="true" className="h-0.5 w-10 shrink-0 bg-accent" />
+-          PUNTO SOLAR MÉXICO
+-        </p>
+-        <h1
+-          id="hero-title"
+-          className="max-w-4xl text-[clamp(2.75rem,7vw,6.5rem)] font-bold leading-[1.05] tracking-tight"
+-        >
+-          Expertos en<br />Energía Solar
+-        </h1>
+-        <p className="mt-7 text-xl leading-relaxed text-white/90 sm:text-2xl">
+-          Energía solar, así de simple.
+-        </p>
+-        <button
+-          type="button"
+-          onClick={onQuoteRequest}
+-          className="mt-10 inline-flex min-h-14 cursor-pointer items-center justify-center gap-4 rounded-md bg-accent px-8 py-4 text-base font-bold text-white transition-colors hover:bg-[#db701b] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white motion-reduce:transition-none"
+-        >
+-          Cotiza tu sistema
+-          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className="size-5">
+-            <path d="M4 12h16m-6-6 6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+-          </svg>
+-        </button>
++  return (
++    <section id="inicio" aria-labelledby="hero-title" className="relative isolate flex min-h-[calc(100svh-96px)] items-center overflow-hidden bg-primary px-6 py-16 text-white sm:px-10 lg:py-24">
++      {/* NOTA: Reemplazar 'temp-hero.svg' por la fotografía final y actualizar el import; esta imagen funciona como fondo del Hero. */}
++      <img src={heroImage} alt="" aria-hidden="true" fetchPriority="high" width="1600" height="1000" className="absolute inset-0 -z-20 size-full object-cover" />
++      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-primary/60" />
++      <div className="mx-auto grid w-full max-w-7xl items-center gap-12 lg:grid-cols-[1.3fr_1fr] lg:gap-20">
++        <div>
++          <p className="mb-6 flex items-center gap-3 text-sm font-bold tracking-[0.15em]">
++            <span aria-hidden="true" className="h-0.5 w-10 bg-accent" />PUNTO SOLAR MÉXICO
++          </p>
++          <h1 id="hero-title" className="text-[clamp(2.5rem,5vw,4.75rem)] font-bold leading-[1.08] tracking-tight">
++            Paneles solares para tu <span className="text-accent">hogar, negocio e industria.</span>
++          </h1>
++          <p className="mt-6 max-w-lg text-xl leading-relaxed">Transforma la energía del sol en nuevas posibilidades. Energía solar, así de simple.</p>
++          {onQuoteRequest ? (
++            <button type="button" onClick={onQuoteRequest} className={ctaClass}>Cotiza tu sistema <span aria-hidden="true" className="ml-4">→</span></button>
++          ) : (
++            <a href="#soluciones" className={ctaClass}>Explora nuestras soluciones <span aria-hidden="true" className="ml-4">→</span></a>
++          )}
++        </div>
++        <aside id="soluciones" aria-labelledby="solutions-title" className="scroll-mt-6 rounded-xl bg-white p-7 text-primary sm:p-9">
++          <p className="mb-3 flex items-center gap-2 text-sm font-bold"><span aria-hidden="true" className="size-2 rounded-full bg-success" />ENERGÍA SUSTENTABLE</p>
++          <h2 id="solutions-title" className="text-3xl font-bold">Una solución para cada espacio</h2>
++          <ul className="mt-6 divide-y divide-primary/15">
++            {solutions.map(([id, title, description]) => (
++              <li key={id} id={id} className="scroll-mt-6 py-5">
++                <h3 className="text-lg font-bold">{title}</h3>
++                <p className="mt-1 leading-relaxed">{description}</p>
++              </li>
++            ))}
++          </ul>
++        </aside>
+       </div>
+     </section>
+   );
+diff --git a/src/web/pages/Home.jsx b/src/web/pages/Home.jsx
+index 9e2be23..cc99959 100644
+--- a/src/web/pages/Home.jsx
++++ b/src/web/pages/Home.jsx
+@@ -1,9 +1,13 @@
+ import Hero from '../components/Hero.jsx';
++import Navbar from '../components/Navbar.jsx';
+ 
+ export default function Home({ onQuoteRequest }) {
+   return (
+-    <main>
+-      <Hero onQuoteRequest={onQuoteRequest} />
+-    </main>
++    <>
++      <Navbar />
++      <main id="contenido" tabIndex={-1}>
++        <Hero onQuoteRequest={onQuoteRequest} />
++      </main>
++    </>
+   );
+ }
+diff --git a/index.html b/index.html
+--- a/index.html
++++ b/index.html
+@@ -8,1 +8,3 @@
+     <meta name="theme-color" content="#172d5b">
++    <!-- NOTA: Reemplazar 'temp-favicon.svg' por el favicon oficial y ajustar el tipo MIME si cambia el formato. -->
++    <link rel="icon" type="image/svg+xml" href="/src/assets/media/temp-favicon.svg">
+diff --git a/src/web/components/Navbar.jsx b/src/web/components/Navbar.jsx
+new file mode 100644
+--- /dev/null
++++ b/src/web/components/Navbar.jsx
+@@ -0,0 +1,35 @@
++import { useState } from 'react';
++// NOTA: Reemplazar 'temp-logo.svg' por el logotipo positivo oficial en src/assets/media/.
++import logo from '../../assets/media/temp-logo.svg';
++
++const links = [['Inicio', '#inicio'], ['Residencial', '#residencial'], ['Comercial', '#comercial'], ['Industrial', '#industrial']];
++
++export default function Navbar() {
++  const [open, setOpen] = useState(false);
++  const linkClass = 'rounded px-3 py-3 font-bold hover:underline decoration-accent underline-offset-8 focus-visible:outline-2 focus-visible:outline-primary';
++
++  return (
++    <header className="relative z-20 bg-white text-primary">
++      <a href="#contenido" className="sr-only focus:not-sr-only focus:absolute focus:bg-white focus:p-4">Saltar al contenido</a>
++      <nav aria-label="Navegación principal" className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-5 lg:grid lg:grid-cols-[1fr_auto_1fr]">
++        <div className="hidden items-center lg:flex">
++          {links.slice(0, 2).map(([label, href]) => <a key={href} href={href} className={linkClass}>{label}</a>)}
++        </div>
++        <a href="#inicio" aria-label="Punto Solar México, inicio" className="flex items-center gap-3 rounded focus-visible:outline-2 focus-visible:outline-primary">
++          {/* NOTA: Reemplazar 'temp-logo.svg' por 'logotipo_punto solar mexico_RGB-02.jpg.jpeg' y actualizar el import; conservar sus proporciones. */}
++          <img src={logo} alt="" width="56" height="56" className="h-14 w-14 object-contain" />
++          <span className="text-lg font-bold leading-tight">PUNTO SOLAR<span className="block text-sm tracking-[0.2em]">MÉXICO</span></span>
++        </a>
++        <div className="hidden items-center justify-end lg:flex">
++          {links.slice(2).map(([label, href]) => <a key={href} href={href} className={linkClass}>{label}</a>)}
++        </div>
++        <button type="button" aria-expanded={open} aria-controls="mobile-menu" onClick={() => setOpen(!open)} className="min-h-11 rounded border border-primary px-4 font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary lg:hidden">
++          {open ? 'Cerrar' : 'Menú'}
++        </button>
++        <div id="mobile-menu" hidden={!open} className="w-full border-t border-primary/15 pt-3 lg:hidden" onKeyDown={(event) => { if (event.key === 'Escape') { setOpen(false); event.currentTarget.previousElementSibling.focus(); } }}>
++          {links.map(([label, href]) => <a key={href} href={href} onClick={() => setOpen(false)} className={`block ${linkClass}`}>{label}</a>)}
++        </div>
++      </nav>
++    </header>
++  );
++}
+diff --git a/src/assets/media/temp-logo.svg b/src/assets/media/temp-logo.svg
+new file mode 100644
+--- /dev/null
++++ b/src/assets/media/temp-logo.svg
+@@ -0,0 +1,1 @@
++<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect x="1" y="1" width="62" height="62" rx="8" fill="none" stroke="#172d5b" stroke-dasharray="4 4"/><circle cx="32" cy="32" r="15" fill="#f48020"/></svg>
+diff --git a/src/assets/media/temp-favicon.svg b/src/assets/media/temp-favicon.svg
+new file mode 100644
+--- /dev/null
++++ b/src/assets/media/temp-favicon.svg
+@@ -0,0 +1,1 @@
++<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="#172d5b"/><circle cx="16" cy="16" r="8" fill="#f48020"/></svg>
+diff --git a/src/assets/media/temp-hero.svg b/src/assets/media/temp-hero.svg
+new file mode 100644
+--- /dev/null
++++ b/src/assets/media/temp-hero.svg
+@@ -0,0 +1,1 @@
++<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000"><rect width="1600" height="1000" fill="#172d5b"/><circle cx="1260" cy="230" r="140" fill="#f48020"/><g fill="none" stroke="#ffffff" stroke-opacity=".2" stroke-width="3"><path d="M500 1000 900 450h700v550Z"/><path d="m650 1000 350-550m-150 550 250-550m-50 550 150-550m50 550 50-550M790 600h810M680 750h920M570 900h1030"/></g></svg>

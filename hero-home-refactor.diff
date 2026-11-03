@@ -1,0 +1,413 @@
+diff --git a/src/web/components/Hero.jsx b/src/web/components/Hero.jsx
+index aecec7e..127e6c6 100644
+--- a/src/web/components/Hero.jsx
++++ b/src/web/components/Hero.jsx
+@@ -1,47 +1,26 @@
+-// NOTA: Reemplazar 'temp-hero.svg' por la fotografía final en src/assets/media/.
++import ContactActions from './ContactActions.jsx';
++import LeadForm from './LeadForm.jsx';
+ import heroImage from '../../assets/media/temp-hero.svg';
+ 
+-const solutions = [
+-  ['residencial', 'Residencial', 'Energía solar para tu hogar.'],
+-  ['comercial', 'Comercial', 'Una solución a la medida de tu negocio.'],
+-  ['industrial', 'Industrial', 'Energía para impulsar tu operación.'],
+-];
+-
+-export default function Hero({ onQuoteRequest }) {
+-  const ctaClass = 'mt-9 inline-flex min-h-14 items-center justify-center rounded-md bg-accent px-7 py-4 font-bold text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white';
++// NOTA: Reemplazar temp-hero.svg por el asset oficial
++const heroBackground = <img src={heroImage} alt="" aria-hidden="true" fetchPriority="high" width="1600" height="1000" className="absolute inset-0 -z-20 size-full object-cover" />;
+ 
++export default function Hero() {
+   return (
+-    <section id="inicio" aria-labelledby="hero-title" className="relative isolate flex min-h-[calc(100svh-96px)] items-center overflow-hidden bg-primary px-6 py-16 text-white sm:px-10 lg:py-24">
+-      {/* NOTA: Reemplazar 'temp-hero.svg' por la fotografía final y actualizar el import; esta imagen funciona como fondo del Hero. */}
+-      <img src={heroImage} alt="" aria-hidden="true" fetchPriority="high" width="1600" height="1000" className="absolute inset-0 -z-20 size-full object-cover" />
+-      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-primary/60" />
+-      <div className="mx-auto grid w-full max-w-7xl items-center gap-12 lg:grid-cols-[1.3fr_1fr] lg:gap-20">
++    <section id="inicio" aria-labelledby="hero-title" className="relative isolate overflow-hidden bg-primary px-6 py-16 font-sans text-white sm:px-10 lg:py-24">
++      {heroBackground}
++      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-primary/90" />
++      <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-20">
+         <div>
+-          <p className="mb-6 flex items-center gap-3 text-sm font-bold tracking-[0.15em]">
+-            <span aria-hidden="true" className="h-0.5 w-10 bg-accent" />PUNTO SOLAR MÉXICO
+-          </p>
+-          <h1 id="hero-title" className="text-[clamp(2.5rem,5vw,4.75rem)] font-bold leading-[1.08] tracking-tight">
+-            Paneles solares para tu <span className="text-accent">hogar, negocio e industria.</span>
++          <p className="text-sm font-bold tracking-widest text-accent">PUNTO SOLAR MÉXICO</p>
++          <h1 id="hero-title" className="mt-6 text-4xl font-bold leading-tight tracking-tight sm:text-6xl">
++            Paneles solares.<br /><span className="text-accent">Más posibilidades.</span>
+           </h1>
+-          <p className="mt-6 max-w-lg text-xl leading-relaxed">Transforma la energía del sol en nuevas posibilidades. Energía solar, así de simple.</p>
+-          {onQuoteRequest ? (
+-            <button type="button" onClick={onQuoteRequest} className={ctaClass}>Cotiza tu sistema <span aria-hidden="true" className="ml-4">→</span></button>
+-          ) : (
+-            <a href="#soluciones" className={ctaClass}>Explora nuestras soluciones <span aria-hidden="true" className="ml-4">→</span></a>
+-          )}
++          <p className="mt-6 max-w-lg text-xl leading-relaxed">Energía para tu hogar, negocio e industria. Encuentra un sistema solar a la medida de tu consumo.</p>
++          <ContactActions dark />
++          <p className="mt-6 text-sm leading-relaxed text-white/80">El primer paso es conocer tu recibo de luz. Te ayudamos a explorar las posibilidades de tu espacio.</p>
+         </div>
+-        <aside id="soluciones" aria-labelledby="solutions-title" className="scroll-mt-6 rounded-xl bg-white p-7 text-primary sm:p-9">
+-          <p className="mb-3 flex items-center gap-2 text-sm font-bold"><span aria-hidden="true" className="size-2 rounded-full bg-success" />ENERGÍA SUSTENTABLE</p>
+-          <h2 id="solutions-title" className="text-3xl font-bold">Una solución para cada espacio</h2>
+-          <ul className="mt-6 divide-y divide-primary/15">
+-            {solutions.map(([id, title, description]) => (
+-              <li key={id} id={id} className="scroll-mt-6 py-5">
+-                <h3 className="text-lg font-bold">{title}</h3>
+-                <p className="mt-1 leading-relaxed">{description}</p>
+-              </li>
+-            ))}
+-          </ul>
+-        </aside>
++        <LeadForm />
+       </div>
+     </section>
+   );
+diff --git a/src/web/components/ContactActions.jsx b/src/web/components/ContactActions.jsx
+new file mode 100644
+--- /dev/null
++++ b/src/web/components/ContactActions.jsx
+@@ -0,0 +1,27 @@
++// Configurar los números oficiales con código de país antes de publicar.
++const whatsapp = (import.meta.env.VITE_CONTACT_WHATSAPP ?? '').replace(/\D/g, '');
++const phone = (import.meta.env.VITE_CONTACT_PHONE ?? '').replace(/\D/g, '');
++const validNumber = (value) => /^[1-9]\d{9,14}$/.test(value);
++
++export default function ContactActions({ dark = false }) {
++  const actions = [
++    { label: 'WhatsApp', number: whatsapp, href: `https://wa.me/${whatsapp}`, className: 'bg-success text-white', external: true },
++    { label: 'Llamar a un asesor', number: phone, href: `tel:+${phone}`, className: 'bg-accent text-primary' },
++  ];
++
++  return (
++    <div className="mt-8">
++      <div className="flex flex-wrap gap-3">
++        {actions.map((action) => {
++          const className = `inline-flex min-h-12 items-center justify-center rounded-lg px-6 py-3 font-bold focus-visible:outline-2 focus-visible:outline-offset-4 ${dark ? 'focus-visible:outline-white' : 'focus-visible:outline-primary'} ${action.className}`;
++          return validNumber(action.number) ? (
++            <a key={action.label} href={action.href} target={action.external ? '_blank' : undefined} rel={action.external ? 'noopener noreferrer' : undefined} className={`${className} hover:underline`}>{action.label}</a>
++          ) : (
++            <button key={action.label} type="button" disabled className={`${className} cursor-not-allowed opacity-70`}>{action.label}</button>
++          );
++        })}
++      </div>
++      {(!validNumber(whatsapp) || !validNumber(phone)) && <p className="mt-3 text-sm">Contacto directo próximamente disponible.</p>}
++    </div>
++  );
++}
+diff --git a/src/web/components/LeadForm.jsx b/src/web/components/LeadForm.jsx
+new file mode 100644
+--- /dev/null
++++ b/src/web/components/LeadForm.jsx
+@@ -0,0 +1,79 @@
++import { useState } from 'react';
++
++const fields = [
++  { name: 'nombre', label: 'Nombre', type: 'text', autoComplete: 'given-name' },
++  { name: 'apellidos', label: 'Apellidos', type: 'text', autoComplete: 'family-name' },
++  { name: 'correo', label: 'Correo electrónico', type: 'email', autoComplete: 'email' },
++  { name: 'telefono', label: 'Teléfono', type: 'tel', autoComplete: 'tel' },
++];
++const amounts = ['8,000', '10,000', '15,000', '40,000'];
++const inputClass = 'mt-2 min-h-12 w-full rounded-lg border border-primary/30 bg-white px-3 py-2 text-base text-primary focus:border-primary focus:outline-2 focus:outline-offset-2 focus:outline-primary';
++
++export default function LeadForm() {
++  const [receiptName, setReceiptName] = useState('');
++  const [fileError, setFileError] = useState('');
++  const [submitted, setSubmitted] = useState(false);
++
++  function selectReceipt(event) {
++    const input = event.currentTarget;
++    const file = input.files?.[0];
++    const valid = !file || /\.pdf$/i.test(file.name) || file.type.startsWith('image/');
++    const error = !valid ? 'Selecciona un PDF o una imagen.' : file?.size > 10 * 1024 * 1024 ? 'El archivo debe pesar como máximo 10 MB.' : '';
++    input.setCustomValidity(error);
++    setFileError(error);
++    setReceiptName(file?.name ?? '');
++  }
++
++  function validatePhone(event) {
++    const input = event.currentTarget;
++    const digits = input.value.replace(/\D/g, '');
++    input.setCustomValidity(digits.length < 10 || digits.length > 15 ? 'Ingresa un teléfono de entre 10 y 15 dígitos.' : '');
++  }
++
++  function submit(event) {
++    event.preventDefault();
++    // Prototipo local: no enviar ni almacenar datos personales o archivos.
++    setSubmitted(true);
++  }
++
++  return (
++    <aside id="cotizacion" aria-labelledby="lead-title" className="min-w-0 scroll-mt-6 rounded-2xl bg-white p-6 text-primary shadow-xl sm:p-8">
++      <p className="text-sm font-bold uppercase tracking-widest">Da el primer paso</p>
++      <h2 id="lead-title" className="mt-2 text-3xl font-bold">Conoce tu potencial solar</h2>
++      <p id="lead-note" className="mt-3 text-sm leading-relaxed">Vista previa del formulario: tus datos y tu recibo no se envían ni se guardan. Todos los campos son obligatorios, excepto el recibo.</p>
++      <form onSubmit={submit} onChange={() => setSubmitted(false)} aria-describedby="lead-note" className="mt-6 space-y-5">
++        <div className="grid gap-5 sm:grid-cols-2">
++          {fields.map((field) => (
++            <div key={field.name} className="min-w-0">
++              <label htmlFor={`lead-${field.name}`} className="text-sm font-bold">{field.label}</label>
++              <input
++                id={`lead-${field.name}`} name={field.name} type={field.type}
++                autoComplete={field.autoComplete} required maxLength={field.type === 'tel' ? 25 : 150}
++                pattern={field.type === 'tel' ? '[+0-9\\(\\) .\\-]{10,25}' : field.type === 'text' ? '.*\\S.*' : undefined}
++                title={field.type === 'tel' ? 'Ingresa entre 10 y 15 dígitos; puedes incluir código de país, espacios o guiones.' : undefined}
++                onInput={field.type === 'tel' ? validatePhone : undefined}
++                className={inputClass}
++              />
++            </div>
++          ))}
++        </div>
++        <div>
++          <label htmlFor="lead-consumo" className="text-sm font-bold">¿Cuánto pagas de luz?</label>
++          <select id="lead-consumo" name="consumo" required defaultValue="" className={inputClass}>
++            <option value="" disabled>Selecciona un rango</option>
++            {amounts.map((amount) => <option key={amount} value={amount.replace(',', '')}>Más de ${amount} MXN</option>)}
++          </select>
++        </div>
++        <div>
++          <label htmlFor="lead-recibo" className="block text-sm font-bold">Subir recibo <span className="font-normal">(opcional)</span></label>
++          <input id="lead-recibo" name="recibo" type="file" accept=".pdf,image/*" onChange={selectReceipt} aria-describedby="receipt-help receipt-name receipt-error" aria-invalid={fileError ? true : undefined} className="mt-2 block w-full min-w-0 rounded-lg border border-dashed border-primary/40 p-3 text-sm file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-primary file:px-4 file:py-2 file:font-bold file:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary" />
++          <p id="receipt-help" className="mt-2 text-xs">PDF o imagen, máximo 10 MB.</p>
++          <p id="receipt-name" aria-live="polite" className="mt-1 break-all text-sm">{receiptName && `Archivo seleccionado: ${receiptName}`}</p>
++          <p id="receipt-error" role="alert" className="mt-1 text-sm font-bold">{fileError}</p>
++        </div>
++        <button type="submit" className="min-h-12 w-full rounded-lg bg-accent px-6 py-3 font-bold text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">Validar solicitud</button>
++        <p role="status" className="text-sm font-bold leading-relaxed">{submitted && 'Formulario validado. Esta es una demostración: no se han enviado tus datos ni tu recibo.'}</p>
++      </form>
++    </aside>
++  );
++}
+diff --git a/src/web/components/VisualPlaceholder.jsx b/src/web/components/VisualPlaceholder.jsx
+new file mode 100644
+--- /dev/null
++++ b/src/web/components/VisualPlaceholder.jsx
+@@ -0,0 +1,7 @@
++export default function VisualPlaceholder({ label }) {
++  return (
++    <div role="img" aria-label={`Imagen temporal: ${label}`} className="flex aspect-[4/3] items-center justify-center rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 p-8 text-center text-primary">
++      <span><span className="block text-xs font-bold uppercase tracking-widest">Imagen temporal</span><span className="mt-3 block text-lg font-bold">{label}</span></span>
++    </div>
++  );
++}
+diff --git a/src/web/components/Beneficios.jsx b/src/web/components/Beneficios.jsx
+new file mode 100644
+--- /dev/null
++++ b/src/web/components/Beneficios.jsx
+@@ -0,0 +1,27 @@
++import VisualPlaceholder from './VisualPlaceholder.jsx';
++
++// NOTA: Reemplazar temp-beneficios por el asset oficial
++const visual = <VisualPlaceholder label="Energía solar en tu espacio" />;
++const benefits = [
++  ['Ahorro a tu medida', 'Aprovecha la energía del sol para reducir tu consumo de la red eléctrica.'],
++  ['Planeación de tu inversión', 'Conoce una propuesta basada en tu tarifa, consumo y espacio disponible.'],
++  ['Energía renovable', 'Genera electricidad con una fuente renovable desde tu propiedad.'],
++];
++
++export default function Beneficios() {
++  return (
++    <section id="beneficios" aria-labelledby="beneficios-title" className="bg-white px-6 py-20 sm:px-10">
++      <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2">
++        <div>
++          <p className="text-sm font-bold uppercase tracking-widest">Tu energía, con más posibilidades</p>
++          <h2 id="beneficios-title" className="mt-3 text-3xl font-bold sm:text-4xl">Haz que el sol trabaje a tu favor.</h2>
++          <ul className="mt-8 space-y-6">
++            {benefits.map(([title, description]) => <li key={title} className="border-l-4 border-accent pl-5"><h3 className="text-xl font-bold">{title}</h3><p className="mt-2 leading-relaxed">{description}</p></li>)}
++          </ul>
++          <p className="mt-6 text-sm leading-relaxed">El ahorro depende de tu consumo, tarifa y las condiciones de instalación. Se estima después de evaluar tu proyecto.</p>
++        </div>
++        {visual}
++      </div>
++    </section>
++  );
++}
+diff --git a/src/web/components/Soluciones.jsx b/src/web/components/Soluciones.jsx
+new file mode 100644
+--- /dev/null
++++ b/src/web/components/Soluciones.jsx
+@@ -0,0 +1,40 @@
++import VisualPlaceholder from './VisualPlaceholder.jsx';
++
++const solutions = [
++  {
++    id: 'residencial', title: 'Para tu hogar', description: 'Un sistema pensado para el consumo de tu familia y el espacio de tu casa.',
++    // NOTA: Reemplazar temp-residencial por el asset oficial
++    visual: <VisualPlaceholder label="Proyecto residencial" />,
++  },
++  {
++    id: 'comercial', title: 'Para tu negocio', description: 'Aprovecha tus horarios de operación para generar energía y planear tus costos.',
++    // NOTA: Reemplazar temp-comercial por el asset oficial
++    visual: <VisualPlaceholder label="Proyecto comercial" />,
++  },
++  {
++    id: 'industrial', title: 'Para tu industria', description: 'Explora una solución fotovoltaica acorde con la demanda energética de tu operación.',
++    // NOTA: Reemplazar temp-industrial por el asset oficial
++    visual: <VisualPlaceholder label="Proyecto industrial" />,
++  },
++];
++
++export default function Soluciones() {
++  return (
++    <section id="soluciones" aria-labelledby="soluciones-title" className="bg-primary px-6 py-20 text-white sm:px-10">
++      <div className="mx-auto max-w-7xl">
++        <p className="text-sm font-bold uppercase tracking-widest text-accent">Soluciones solares</p>
++        <h2 id="soluciones-title" className="mt-3 max-w-2xl text-3xl font-bold sm:text-4xl">Una solución para cada espacio.</h2>
++        <div className="mt-10 grid gap-6 lg:grid-cols-3">
++          {solutions.map(({ id, title, description, visual }) => (
++            <article key={id} id={id} className="flex scroll-mt-6 flex-col rounded-2xl bg-white p-6 text-primary">
++              {visual}
++              <h3 className="mt-6 text-2xl font-bold">{title}</h3>
++              <p className="mb-6 mt-3 leading-relaxed">{description}</p>
++              <a href="#cotizacion" aria-label={`Evaluar proyecto ${id}`} className="mt-auto inline-flex min-h-12 items-center self-start rounded-lg bg-accent px-5 py-3 font-bold hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">Evaluar mi proyecto</a>
++            </article>
++          ))}
++        </div>
++      </div>
++    </section>
++  );
++}
+diff --git a/src/web/components/Proceso.jsx b/src/web/components/Proceso.jsx
+new file mode 100644
+--- /dev/null
++++ b/src/web/components/Proceso.jsx
+@@ -0,0 +1,26 @@
++const steps = [
++  ['Conocemos tu consumo', 'El recibo de luz es el punto de partida para entender tus necesidades.'],
++  ['Evaluamos tu espacio', 'Revisamos las condiciones del sitio y el alcance de tu proyecto.'],
++  ['Diseñamos tu propuesta', 'Definimos el sistema, la inversión y una estimación de generación.'],
++  ['Planeamos la instalación', 'Acordamos contigo los siguientes pasos y el acompañamiento del proyecto.'],
++];
++
++export default function Proceso() {
++  return (
++    <section id="proceso" aria-labelledby="proceso-title" className="bg-white px-6 py-20 sm:px-10">
++      <div className="mx-auto max-w-7xl">
++        <p className="text-sm font-bold uppercase tracking-widest">Paso a paso</p>
++        <h2 id="proceso-title" className="mt-3 text-3xl font-bold sm:text-4xl">Tu camino hacia la energía solar.</h2>
++        <ol className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
++          {steps.map(([title, description], index) => (
++            <li key={title} className="border-t-4 border-accent pt-6">
++              <span className="text-4xl font-bold text-primary/40">0{index + 1}</span>
++              <h3 className="mt-4 text-xl font-bold">{title}</h3>
++              <p className="mt-3 leading-relaxed">{description}</p>
++            </li>
++          ))}
++        </ol>
++      </div>
++    </section>
++  );
++}
+diff --git a/src/web/components/Servicios.jsx b/src/web/components/Servicios.jsx
+new file mode 100644
+--- /dev/null
++++ b/src/web/components/Servicios.jsx
+@@ -0,0 +1,20 @@
++const services = [
++  ['Diseño fotovoltaico', 'Una propuesta que considera tu consumo, ubicación y superficie disponible.'],
++  ['Instalación y puesta en marcha', 'Planeación de los trabajos y revisión del sistema antes de comenzar a generar.'],
++  ['Monitoreo', 'Consulta las opciones de seguimiento de generación disponibles para tu sistema.'],
++  ['Mantenimiento', 'Conoce los cuidados y revisiones recomendados para conservar el desempeño de tu instalación.'],
++];
++
++export default function Servicios() {
++  return (
++    <section id="servicios" aria-labelledby="servicios-title" className="bg-primary px-6 py-20 text-white sm:px-10">
++      <div className="mx-auto max-w-7xl">
++        <p className="text-sm font-bold uppercase tracking-widest text-accent">Acompañamiento en cada etapa</p>
++        <h2 id="servicios-title" className="mt-3 text-3xl font-bold sm:text-4xl">Más que paneles solares.</h2>
++        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
++          {services.map(([title, description]) => <article key={title} className="rounded-xl border border-white/25 p-6"><h3 className="text-xl font-bold text-accent">{title}</h3><p className="mt-4 leading-relaxed">{description}</p></article>)}
++        </div>
++      </div>
++    </section>
++  );
++}
+diff --git a/src/web/components/PreguntasFrecuentes.jsx b/src/web/components/PreguntasFrecuentes.jsx
+new file mode 100644
+--- /dev/null
++++ b/src/web/components/PreguntasFrecuentes.jsx
+@@ -0,0 +1,19 @@
++const questions = [
++  ['¿Cuánto puedo ahorrar con paneles solares?', 'Depende de tu tarifa, consumo y del sistema que se pueda instalar. Con tu recibo y una evaluación del sitio es posible elaborar una estimación personalizada.'],
++  ['¿Qué necesito para evaluar mi proyecto?', 'Tu recibo de luz reciente y la información del espacio donde quieres instalar el sistema. La revisión técnica permite definir su viabilidad.'],
++  ['¿Los paneles funcionan durante un apagón?', 'Un sistema conectado a la red normalmente se desconecta por seguridad. Para contar con respaldo se necesita un diseño compatible y equipo adicional.'],
++  ['¿Qué mantenimiento necesita un sistema solar?', 'La limpieza y las revisiones dependen del sitio y de las recomendaciones del fabricante. Consulta el plan adecuado para tu instalación.'],
++];
++
++export default function PreguntasFrecuentes() {
++  return (
++    <section id="preguntas" aria-labelledby="preguntas-title" className="bg-white px-6 py-20 sm:px-10">
++      <div className="mx-auto max-w-3xl">
++        <h2 id="preguntas-title" className="text-3xl font-bold sm:text-4xl">Resolvamos tus dudas.</h2>
++        <div className="mt-8 divide-y divide-primary/20">
++          {questions.map(([question, answer]) => <details key={question} className="py-5"><summary className="cursor-pointer rounded py-2 text-lg font-bold marker:text-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">{question}</summary><p className="mt-3 leading-relaxed">{answer}</p></details>)}
++        </div>
++      </div>
++    </section>
++  );
++}
+diff --git a/src/web/components/Contacto.jsx b/src/web/components/Contacto.jsx
+new file mode 100644
+--- /dev/null
++++ b/src/web/components/Contacto.jsx
+@@ -0,0 +1,15 @@
++import ContactActions from './ContactActions.jsx';
++
++export default function Contacto() {
++  return (
++    <section id="contacto" aria-labelledby="contacto-title" className="bg-primary px-6 py-20 text-white sm:px-10">
++      <div className="mx-auto max-w-7xl border-l-4 border-accent pl-6 sm:pl-10">
++        <p className="text-sm font-bold uppercase tracking-widest text-accent">Hablemos de tu proyecto</p>
++        <h2 id="contacto-title" className="mt-3 max-w-2xl text-3xl font-bold sm:text-4xl">El siguiente paso empieza contigo.</h2>
++        <p className="mt-5 max-w-2xl text-lg leading-relaxed">Ya sea para tu hogar, negocio o industria, en Punto Solar México queremos ayudarte a explorar tu potencial solar.</p>
++        <ContactActions dark />
++        <a href="#cotizacion" className="mt-6 inline-flex min-h-12 items-center rounded font-bold underline decoration-accent underline-offset-8 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">Ir al formulario</a>
++      </div>
++    </section>
++  );
++}
+diff --git a/src/web/pages/Home.jsx b/src/web/pages/Home.jsx
+index cc99959..6b138a2 100644
+--- a/src/web/pages/Home.jsx
++++ b/src/web/pages/Home.jsx
+@@ -1,12 +1,24 @@
+ import Hero from '../components/Hero.jsx';
+ import Navbar from '../components/Navbar.jsx';
++import Beneficios from '../components/Beneficios.jsx';
++import Soluciones from '../components/Soluciones.jsx';
++import Proceso from '../components/Proceso.jsx';
++import Servicios from '../components/Servicios.jsx';
++import PreguntasFrecuentes from '../components/PreguntasFrecuentes.jsx';
++import Contacto from '../components/Contacto.jsx';
+ 
+-export default function Home({ onQuoteRequest }) {
++export default function Home() {
+   return (
+     <>
+       <Navbar />
+-      <main id="contenido" tabIndex={-1}>
+-        <Hero onQuoteRequest={onQuoteRequest} />
++      <main id="contenido" tabIndex={-1} className="font-sans text-primary">
++        <Hero />
++        <Beneficios />
++        <Soluciones />
++        <Proceso />
++        <Servicios />
++        <PreguntasFrecuentes />
++        <Contacto />
+       </main>
+     </>
+   );
+diff --git a/.env.example b/.env.example
+new file mode 100644
+--- /dev/null
++++ b/.env.example
+@@ -0,0 +1,3 @@
++# Números oficiales con código de país, solo dígitos. Reiniciar Vite después de configurarlos.
++VITE_CONTACT_WHATSAPP=
++VITE_CONTACT_PHONE=
