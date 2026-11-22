@@ -1,6 +1,5 @@
 import VisualPlaceholder from './VisualPlaceholder.jsx';
 
-// NOTA: Reemplazar temp-beneficios por el asset oficial
 const visual = <VisualPlaceholder label="Energía solar en tu espacio" />;
 const benefits = [
   ['Ahorro a tu medida', 'Aprovecha la energía del sol para reducir tu consumo de la red eléctrica.'],

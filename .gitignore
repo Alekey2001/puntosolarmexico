@@ -6,6 +6,7 @@
 *.key
 *.p12
 config.php
+.cursor
 # Dependencias y archivos temporales
 node_modules/
 dist/

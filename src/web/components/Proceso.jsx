@@ -1,3 +1,5 @@
+import useScrollReveal, { scrollRevealClass, scrollRevealDelays } from '../hooks/useScrollReveal';
+
 const steps = [
   {
     title: 'Diseño y cotización',
@@ -20,14 +22,17 @@ const steps = [
 ];
 
 export default function Proceso() {
+  const revealRef = useScrollReveal();
   return (
-    <section id="proceso" aria-labelledby="proceso-title" className="bg-gray-50 px-6 py-20 font-sans sm:px-10">
+    <section ref={revealRef} id="proceso" aria-labelledby="proceso-title" className="bg-gray-50 px-6 py-20 font-sans sm:px-10">
       <div className="mx-auto max-w-7xl">
-        <p className="text-sm font-bold uppercase tracking-widest text-accent">Paso a paso</p>
-        <h2 id="proceso-title" className="mt-3 text-3xl font-bold text-primary sm:text-4xl">Tu camino hacia la energía solar.</h2>
+        <header data-scroll-reveal className={scrollRevealClass}>
+          <p className="text-sm font-bold uppercase tracking-widest text-accent">Paso a paso</p>
+          <h2 id="proceso-title" className="mt-3 text-3xl font-bold text-primary sm:text-4xl">Tu camino hacia la energía solar.</h2>
+        </header>
         <ol className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3">
           {steps.map(({ title, description, icon, color }, index) => (
-            <li key={title} className="relative rounded-2xl border border-gray-100 bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:border-accent/30 hover:shadow-xl motion-reduce:transform-none motion-reduce:transition-none">
+            <li key={title} data-scroll-reveal className={`relative rounded-2xl border border-gray-100 bg-white p-8 shadow-sm hover:-translate-y-2 hover:border-accent/30 hover:shadow-xl ${scrollRevealClass} ${scrollRevealDelays[index]}`}>
               <span aria-hidden="true" className="absolute right-4 top-4 text-5xl font-black text-gray-100">0{index + 1}</span>
               <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className={`relative size-10 ${color}`}>
                 <path d={icon} />

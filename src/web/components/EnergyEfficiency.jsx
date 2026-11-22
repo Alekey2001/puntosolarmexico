@@ -1,3 +1,5 @@
+import useScrollReveal, { scrollRevealClass, scrollRevealDelays } from '../hooks/useScrollReveal';
+
 const steps = [
   {
     number: '01',
@@ -23,9 +25,10 @@ const steps = [
 ];
 
 export default function EnergyEfficiency() {
+  const revealRef = useScrollReveal();
   return (
-    <section aria-labelledby="energy-efficiency-title" className="bg-gray-50/50 px-6 py-16 font-sans lg:py-24">
-      <div className="mx-auto max-w-3xl text-center">
+    <section ref={revealRef} aria-labelledby="energy-efficiency-title" className="bg-gray-50/50 px-6 py-16 font-sans lg:py-24">
+      <div data-scroll-reveal className={`mx-auto max-w-3xl text-center ${scrollRevealClass}`}>
         <p className="inline-flex items-center gap-2 rounded-full bg-success/10 px-4 py-2 text-xs font-bold tracking-wide text-success">
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-5 shrink-0">
             <path d="M20 4c-8-2-15 1-15 8a7 7 0 0 0 7 7c7 0 9-7 8-15ZM4 21 15 10" />
@@ -36,7 +39,7 @@ export default function EnergyEfficiency() {
         <p className="mt-4 leading-relaxed text-gray-600">Con nuestro esquema de interconexión bidireccional avalado por CFE, tu sistema solar produce excedentes durante el día que se abonan en saldo a favor en la red eléctrica.</p>
       </div>
       <div className="mx-auto mt-12 grid max-w-7xl items-center gap-12 lg:grid-cols-2">
-        <article aria-labelledby="consumption-comparison-title" className="min-w-0 rounded-2xl bg-white p-8 shadow-xl">
+        <article data-scroll-reveal aria-labelledby="consumption-comparison-title" className={`min-w-0 rounded-2xl bg-white p-8 shadow-xl ${scrollRevealClass} delay-100`}>
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <h3 id="consumption-comparison-title" className="text-xl font-bold text-primary">Comparativo de Consumo Real</h3>
@@ -77,8 +80,8 @@ export default function EnergyEfficiency() {
           </footer>
         </article>
         <ol aria-label="Proceso de generación e interconexión solar" className="flex flex-col gap-8">
-          {steps.map((step) => (
-            <li key={step.number} className="flex items-start gap-5">
+          {steps.map((step, index) => (
+            <li key={step.number} data-scroll-reveal className={`flex items-start gap-5 ${scrollRevealClass} ${scrollRevealDelays[index]}`}>
               <div className={`flex size-20 shrink-0 flex-col items-center justify-center gap-1 rounded-xl text-white ${step.color}`}>
                 <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="size-6">
                   <path d={step.icon} />

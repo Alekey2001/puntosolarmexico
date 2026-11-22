@@ -2,8 +2,9 @@ import logo from '../../assets/media/logo.webp';
 
 const waUrl = 'https://wa.me/5213332175444?text=Hola%2C%20vengo%20de%20su%20sitio%20web%2C%20quisiera%20cotizar%20%2F%20preguntar%3A%20';
 const linkClass = 'text-sm text-white/70 transition-colors hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white aria-disabled:cursor-not-allowed';
-
-// Completar los destinos pendientes cuando estén disponibles las páginas y perfiles oficiales.
+const facebookUrl = 'https://www.facebook.com/profile.php?id=61586809564522&rdid=bz4JJM2ktiKC0cdu&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1CcZK4mUt5%2F#';
+const instagramUrl = 'https://www.instagram.com/puntosolarmexico';
+const linkedinUrl = 'https://www.linkedin.com/in/puntosolar-m%C3%A9xico-679249449/';
 const solutions = [
   { label: 'Residencial DAC', href: '#residencial' },
   { label: 'Comercial e Industrial', href: '#comercial' },
@@ -19,9 +20,9 @@ const institutional = [
   { label: 'Términos y Condiciones' },
 ];
 const socials = [
-  { label: 'Facebook', icon: 'M14 21v-8h3l1-4h-4V7c0-1 1-2 2-2h2V2h-3c-4 0-5 3-5 5v2H7v4h3v8' },
-  { label: 'Instagram', icon: 'M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4Zm9 9a4 4 0 1 1-8 0 4 4 0 0 1 8 0Zm1-5h.01' },
-  { label: 'LinkedIn', icon: 'M4 9v12M4 4v.01M10 21V9m0 5a4 4 0 0 1 8 0v7' },
+  { label: 'Facebook', href: facebookUrl, icon: 'M14 21v-8h3l1-4h-4V7c0-1 1-2 2-2h2V2h-3c-4 0-5 3-5 5v2H7v4h3v8' },
+  { label: 'Instagram', href: instagramUrl, icon: 'M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4Zm9 9a4 4 0 1 1-8 0 4 4 0 0 1 8 0Zm1-5h.01' },
+  { label: 'LinkedIn', href: linkedinUrl, icon: 'M4 9v12M4 4v.01M10 21V9m0 5a4 4 0 0 1 8 0v7' },
   { label: 'WhatsApp', href: waUrl, icon: 'M21 11.5a9 9 0 0 1-13.5 7.8L3 21l1.7-4.5A9 9 0 1 1 21 11.5ZM8 7l2 3-1 1c1 2 2 3 4 4l1-1 3 2c-1 3-5 1-7-1s-4-6-2-8Z' },
 ];
 const contacts = [

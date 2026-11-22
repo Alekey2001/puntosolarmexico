@@ -1,0 +1,424 @@
+diff --git a/src/web/components/Hero.jsx b/src/web/components/Hero.jsx
+index 0536b0a..53aabad 100644
+--- a/src/web/components/Hero.jsx
++++ b/src/web/components/Hero.jsx
+@@ -1,11 +1,6 @@
+ import { useEffect, useRef, useState } from 'react';
+ import heroVideo from '../../assets/media/hero-bg.mp4';
+ 
+-const estimates = {
+-  Jalisco: { hsp: '5.8', generation: '3,190', savings: '16,340', daily: '19.6' },
+-  Colima: { hsp: '6.1', generation: '3,355', savings: '17,185', daily: '20.6' },
+-};
+-
+ const tariffs = {
+   residencial: { label: 'Residencial', rate: 3.00, icon: '🏠' },
+   comercial: { label: 'Comercial', rate: 4.90, icon: '🏢' },
+@@ -30,12 +25,13 @@ const benefits = [
+ ];
+ 
+ export default function Hero() {
+-  const [region, setRegion] = useState('Jalisco');
+-  const [isCalcOpen, setIsCalcOpen] = useState(false);
++  const [isModalOpen, setIsModalOpen] = useState(false);
++  const [isSubmitting, setIsSubmitting] = useState(false);
++  const [statusMessage, setStatusMessage] = useState(null);
+   const [tariffType, setTariffType] = useState('residencial');
+   const [monthlyKwh, setMonthlyKwh] = useState(600);
+-  const calculatorRef = useRef(null);
+-  const estimate = estimates[region];
++  const modalRef = useRef(null);
++  const submittingRef = useRef(false);
+   const currentTariff = tariffs[tariffType];
+   const currentRate = currentTariff.rate;
+   const monthlySavings = Math.round(monthlyKwh * currentRate * 0.99);
+@@ -47,21 +43,57 @@ export default function Hero() {
+     setMonthlyKwh(Number.isFinite(value) ? Math.min(5000, Math.max(50, value)) : 50);
+   };
+ 
++  async function handleSubmit(event) {
++    event.preventDefault();
++    if (submittingRef.current || statusMessage?.success) return;
++
++    const form = event.currentTarget;
++    const payload = new FormData(form);
++    payload.set('mensaje', `Solicitud desde Calculadora Hero - Tarifa: ${currentTariff.label} ($${currentRate.toFixed(2)}/kWh) | Consumo Mensual: ${monthlyKwh} kWh | Ahorro Mensual: $${monthlySavings} MXN | Ahorro Bimestral: $${bimonthlySavings} MXN | Ahorro Anual: $${annualSavings} MXN`);
++    submittingRef.current = true;
++    setIsSubmitting(true);
++    setStatusMessage(null);
++
++    try {
++      const response = await fetch('/api/enviar-correo.php', { method: 'POST', body: payload });
++      const result = await response.json();
++      if (!response.ok || result.success !== true) {
++        setStatusMessage({ success: false, message: result.message || 'No se pudo enviar la solicitud. Intenta nuevamente.' });
++        return;
++      }
++      setStatusMessage({ success: true, message: '¡Tu cálculo fue enviado! Un asesor técnico te contactará a la brevedad.' });
++      form.reset();
++    } catch {
++      setStatusMessage({ success: false, message: 'No se pudo confirmar el envío. Revisa tu conexión e intenta nuevamente.' });
++    } finally {
++      submittingRef.current = false;
++      setIsSubmitting(false);
++    }
++  }
++
+   useEffect(() => {
+-    if (!isCalcOpen) return;
++    if (!isModalOpen) return;
+     const previousFocus = document.activeElement;
+     const previousOverflow = document.body.style.overflow;
+-    const dialog = calculatorRef.current;
+-    const controls = dialog.querySelectorAll('button, input');
+-    controls[0].focus();
++    const dialog = modalRef.current;
++    dialog.querySelector('input').focus();
+     document.body.style.overflow = 'hidden';
+ 
+     const handleKeyDown = (event) => {
+-      if (event.key === 'Escape') setIsCalcOpen(false);
++      if (event.key === 'Escape' && !submittingRef.current) setIsModalOpen(false);
+       if (event.key !== 'Tab') return;
++      const controls = dialog.querySelectorAll('button:not(:disabled), input:not(:disabled)');
++      if (!controls.length) {
++        event.preventDefault();
++        dialog.focus();
++        return;
++      }
+       const first = controls[0];
+       const last = controls[controls.length - 1];
+-      if (event.shiftKey && document.activeElement === first) {
++      if (!dialog.contains(document.activeElement) || document.activeElement === dialog) {
++        event.preventDefault();
++        (event.shiftKey ? last : first).focus();
++      } else if (event.shiftKey && document.activeElement === first) {
+         event.preventDefault();
+         last.focus();
+       } else if (!event.shiftKey && document.activeElement === last) {
+@@ -76,10 +108,10 @@ export default function Hero() {
+       document.body.style.overflow = previousOverflow;
+       previousFocus?.focus({ preventScroll: true });
+     };
+-  }, [isCalcOpen]);
++  }, [isModalOpen]);
+ 
+   return (
+-    <section id="inicio" aria-labelledby="hero-title" className={`relative isolate overflow-hidden min-h-[90vh] flex items-center bg-primary px-6 pb-16 pt-28 font-sans text-white sm:px-10 lg:pb-24 lg:pt-32 ${isCalcOpen ? 'z-[60]' : ''}`}>
++    <section id="inicio" aria-labelledby="hero-title" className={`relative isolate overflow-hidden min-h-[90vh] flex items-center bg-primary px-6 pb-16 pt-28 font-sans text-white sm:px-10 lg:pb-24 lg:pt-32 ${isModalOpen ? 'z-[60]' : ''}`}>
+       <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover object-bottom origin-bottom scale-115 transform-gpu -z-20">
+         <source src={heroVideo} type="video/mp4" />
+       </video>
+@@ -143,157 +175,68 @@ export default function Hero() {
+             <p className="mt-2 text-sm text-white/80">Más de 1,200 familias e industrias ya ahorran en su recibo CFE</p>
+           </div>
+         </div>
+-        <aside id="cotizacion" aria-labelledby="simulator-title" className="relative min-w-0 scroll-mt-6 bg-white rounded-2xl p-6 shadow-2xl text-slate-800">
+-          <button type="button" onClick={() => setIsCalcOpen(true)} aria-haspopup="dialog" aria-expanded={isCalcOpen} className="bg-[#f48020] text-white font-bold py-3 px-4 rounded-xl w-full flex items-center justify-center gap-2 mb-4 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">
+-            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-5 shrink-0">
+-              <rect x="5" y="2" width="14" height="20" rx="2" />
+-              <path d="M8 6h8M8 10h1m6 0h1m-8 4h1m6 0h1m-8 4h1m6 0h1" />
++        <aside id="cotizacion" aria-labelledby="calculator-title" className="relative min-w-0 scroll-mt-6 bg-white rounded-2xl shadow-2xl overflow-hidden text-slate-800">
++          <div className="bg-[#172d5b] px-5 py-4 text-white flex items-center gap-3">
++            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="size-7 shrink-0 text-[#f48020]">
++              <path d="M5 4h14l3 13H2L5 4Zm-1.5 6.5h17M10 4 9 17m5-13 1 13m-3 0v4m-4 0h8" />
+             </svg>
+-            Calcula tu Ahorro Ahora →
+-          </button>
+-          {isCalcOpen && (
+-            <>
+-              <div aria-hidden="true" onClick={() => setIsCalcOpen(false)} className="fixed inset-0 bg-slate-900/60 backdrop-blur-[2px] z-40" />
+-              <div
+-                ref={calculatorRef}
+-                role="dialog"
+-                aria-modal="true"
+-                aria-labelledby="calculator-title"
+-                aria-describedby="calculator-description"
+-                className="fixed inset-x-3 sm:inset-x-auto sm:w-[460px] sm:left-1/2 sm:-translate-x-1/2 top-1/2 -translate-y-1/2 max-h-[92vh] overflow-y-auto z-50 lg:absolute lg:inset-x-auto lg:top-0 lg:right-0 lg:w-[490px] lg:translate-x-0 lg:translate-y-0 rounded-2xl shadow-2xl overflow-x-hidden bg-white"
+-              >
+-                <div className="bg-[#172d5b] px-5 py-4 flex items-center justify-between gap-3 text-white">
+-                  <div className="flex items-center gap-3">
+-                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="size-7 shrink-0 text-[#f48020]">
+-                      <path d="M5 4h14l3 13H2L5 4Zm-1.5 6.5h17M10 4 9 17m5-13 1 13m-3 0v4m-4 0h8" />
+-                    </svg>
+-                    <div>
+-                      <h2 id="calculator-title" className="font-bold text-base sm:text-lg leading-tight">Calculadora de Ahorro Solar</h2>
+-                      <p id="calculator-description" className="text-xs text-slate-300">Estima tu ahorro real con paneles solares en México</p>
+-                    </div>
+-                  </div>
+-                  <button type="button" aria-label="Cerrar calculadora" onClick={() => setIsCalcOpen(false)} className="w-8 h-8 shrink-0 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
+-                    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="size-4">
+-                      <path d="m6 6 12 12M18 6 6 18" />
+-                    </svg>
+-                  </button>
+-                </div>
+-                <div className="p-5 sm:p-6 text-slate-800">
+-                  <h3 id="calculator-tariff-label" className="text-[11px] font-bold tracking-wider text-[#172d5b] uppercase mb-2.5">1. SELECCIONA TU TIPO DE TARIFA CFE</h3>
+-                  <div role="group" aria-labelledby="calculator-tariff-label" className="grid grid-cols-3 gap-2.5">
+-                    {Object.entries(tariffs).map(([type, tariff]) => (
+-                      <button key={type} type="button" aria-pressed={tariffType === type} onClick={() => setTariffType(type)} className={`rounded-xl p-3 text-center transition-all ${tariffType === type ? 'border-2 border-[#172d5b] bg-slate-50/90' : 'border border-slate-200 bg-slate-50/40 hover:border-slate-300'}`}>
+-                        <span aria-hidden="true" className="block text-2xl mb-1">{tariff.icon}</span>
+-                        <span className="block font-bold text-xs sm:text-sm text-[#172d5b]">{tariff.label}</span>
+-                        <span className={`block text-xs ${tariffType === type ? 'font-bold text-[#4a8b2c]' : 'text-slate-500'}`}>${tariff.rate.toFixed(2)} / kWh</span>
+-                      </button>
+-                    ))}
+-                  </div>
+-                  <div className="bg-slate-50/90 border border-slate-200/80 rounded-xl p-4 my-4">
+-                    <div className="flex items-center justify-between gap-2 mb-3">
+-                      <label id="calculator-consumption-label" htmlFor="calculator-consumption" className="text-[11px] font-bold text-[#172d5b] uppercase">2. CONSUMO PROMEDIO MENSUAL (KWH)</label>
+-                      <div className="flex shrink-0 items-center gap-1.5">
+-                        <input id="calculator-consumption" type="number" min="50" max="5000" value={monthlyKwh} onChange={updateConsumption} className="w-24 text-right font-bold text-[#172d5b] bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-sm focus:outline-none focus:border-[#f48020]" />
+-                        <span className="text-xs font-medium text-slate-600">kWh</span>
+-                      </div>
+-                    </div>
+-                    <input type="range" min="50" max="5000" step="10" value={monthlyKwh} onChange={updateConsumption} aria-labelledby="calculator-consumption-label" className="accent-[#f48020] w-full cursor-pointer" />
+-                    <div className="flex justify-between text-[11px] text-slate-500 mt-1.5">
+-                      <span>50 kWh</span><span>2,500 kWh</span><span>5,000+ kWh</span>
+-                    </div>
+-                  </div>
+-                  <div className="flex items-center justify-between text-xs my-4">
+-                    <span className="text-slate-600">Tarifa CFE aplicada:</span>
+-                    <span className="bg-slate-100 text-[#172d5b] font-bold px-3 py-1 rounded-full">${currentRate.toFixed(2)} / kWh ({currentTariff.label})</span>
+-                  </div>
+-                  <div aria-live="polite" aria-atomic="true" className="grid grid-cols-3 gap-2.5 mb-5">
+-                    <div className="min-w-0 bg-emerald-50/70 border border-emerald-200 rounded-xl p-2.5 sm:p-3 text-center">
+-                      <p className="text-[10px] font-bold text-[#4a8b2c] uppercase">AHORRO MENSUAL</p>
+-                      <p className="break-words text-lg sm:text-xl font-extrabold text-[#4a8b2c] my-0.5">${monthlySavings.toLocaleString('en-US')}</p>
+-                      <p className="text-[10px] text-[#4a8b2c]/90">MXN (99% ahorro)</p>
+-                    </div>
+-                    <div className="min-w-0 bg-emerald-50/70 border border-emerald-200 rounded-xl p-2.5 sm:p-3 text-center">
+-                      <p className="text-[10px] font-bold text-[#4a8b2c] uppercase">AHORRO BIMESTRAL</p>
+-                      <p className="break-words text-lg sm:text-xl font-extrabold text-[#4a8b2c] my-0.5">${bimonthlySavings.toLocaleString('en-US')}</p>
+-                      <p className="text-[10px] text-[#4a8b2c]/90">MXN por recibo CFE</p>
+-                    </div>
+-                    <div className="min-w-0 bg-[#172d5b] rounded-xl p-2.5 sm:p-3 text-center text-white">
+-                      <p className="text-[10px] font-bold text-slate-300 uppercase">AHORRO ANUAL</p>
+-                      <p className="break-words text-lg sm:text-xl font-extrabold text-[#f48020] my-0.5">${annualSavings.toLocaleString('en-US')}</p>
+-                      <p className="text-[10px] text-slate-300">MXN al año</p>
+-                    </div>
+-                  </div>
+-                  <button type="button" onClick={() => {
+-                    setIsCalcOpen(false);
+-                    const quoteForm = document.querySelector('#cotizador') ?? document.querySelector('form[aria-labelledby="lead-form-title"]');
+-                    quoteForm?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+-                  }} className="bg-[#f48020] hover:bg-[#e07015] text-white font-bold py-3.5 px-5 rounded-xl w-full flex items-center justify-center gap-2 shadow-md transition-all">
+-                    Solicitar Estudio Personalizado →
+-                  </button>
+-                </div>
+-              </div>
+-            </>
+-          )}
+-          <div className="flex flex-wrap items-center justify-between gap-3">
+-            <h2 id="simulator-title" className="flex items-center gap-2 text-xs font-bold tracking-wide">
+-              <span aria-hidden="true" className="size-2 shrink-0 rounded-full bg-[#4a8b2c] motion-safe:animate-pulse" />
+-              SIMULADOR DE WATTS POR HORA (kWh)
+-            </h2>
+-            <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-[#4a8b2c]">Tiempo Real</span>
+-          </div>
+-          <p id="region-label" className="mt-6 text-sm font-medium">Selecciona Región de Irradiación</p>
+-          <div role="group" aria-labelledby="region-label" className="mt-3 grid grid-cols-2 gap-2">
+-            {Object.entries(estimates).map(([name, { hsp }]) => (
+-              <button
+-                key={name}
+-                type="button"
+-                aria-pressed={region === name}
+-                onClick={() => setRegion(name)}
+-                className={`min-h-11 flex items-center justify-center gap-2 rounded-full px-3 py-2 text-xs font-bold sm:text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${region === name ? 'bg-[#172d5b] text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+-              >
+-                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-4 shrink-0">
+-                  <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z" />
+-                  <circle cx="12" cy="10" r="2" />
+-                </svg>
+-                {name} ({hsp} HSP)
+-              </button>
+-            ))}
++            <div>
++              <h2 id="calculator-title" className="font-bold text-base sm:text-lg leading-tight">Calcula tu Ahorro Solar</h2>
++              <p className="text-xs text-slate-300">Estima tu ahorro real con paneles solares en México</p>
++            </div>
+           </div>
+-          <div aria-live="polite" aria-atomic="true" className="mt-6">
+-            <div className="grid grid-cols-2 gap-3">
+-              <div className="min-w-0 bg-slate-50 border border-slate-200 rounded-xl p-4">
+-                <h3 className="text-xs font-bold">Generación Estimada</h3>
+-                <p className="mt-4 text-2xl font-bold sm:text-3xl">{estimate.generation} <sub className="text-xs font-normal">kWh</sub></p>
+-                <p className="mt-3 text-xs text-slate-500">Producción bimestral aproximada</p>
++          <div className="p-5 sm:p-6">
++            <h3 id="calculator-tariff-label" className="text-[11px] font-bold tracking-wider text-[#172d5b] uppercase mb-2.5">1. SELECCIONA TU TIPO DE TARIFA CFE</h3>
++            <div role="group" aria-labelledby="calculator-tariff-label" className="grid grid-cols-3 gap-2.5">
++              {Object.entries(tariffs).map(([type, tariff]) => (
++                <button key={type} type="button" aria-pressed={tariffType === type} onClick={() => setTariffType(type)} className={`min-w-0 rounded-xl px-1 py-3 sm:p-3 text-center transition-all ${tariffType === type ? 'border-2 border-[#172d5b] bg-slate-50/90' : 'border border-slate-200 bg-slate-50/40 hover:border-slate-300'}`}>
++                  <span aria-hidden="true" className="block text-2xl mb-1">{tariff.icon}</span>
++                  <span className="block font-bold text-xs sm:text-sm text-[#172d5b]">{tariff.label}</span>
++                  <span className={`block text-xs ${tariffType === type ? 'font-bold text-[#4a8b2c]' : 'text-slate-500'}`}>${tariff.rate.toFixed(2)} / kWh</span>
++                </button>
++              ))}
++            </div>
++            <div className="bg-slate-50/90 border border-slate-200/80 rounded-xl p-4 my-4">
++              <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
++                <label id="calculator-consumption-label" htmlFor="calculator-consumption" className="text-[11px] font-bold text-[#172d5b] uppercase">2. CONSUMO PROMEDIO MENSUAL (KWH)</label>
++                <div className="flex shrink-0 items-center gap-1.5">
++                  <input id="calculator-consumption" type="number" min="50" max="5000" value={monthlyKwh} onChange={updateConsumption} className="w-24 text-right font-bold text-[#172d5b] bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-sm focus:outline-none focus:border-[#f48020]" />
++                  <span className="text-xs font-medium text-slate-600">kWh</span>
++                </div>
+               </div>
+-              <div className="relative min-w-0 bg-emerald-50/70 border border-emerald-200 rounded-xl p-4">
+-                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="absolute right-3 top-3 size-4 text-[#4a8b2c]">
+-                  <path d="M20 4c-8-2-15 1-15 8a7 7 0 0 0 7 7c7 0 9-7 8-15Z" />
+-                  <path d="M4 21 15 10" />
+-                </svg>
+-                <h3 className="pr-4 text-xs font-bold">Ahorro Bimestral CFE</h3>
+-                <p className="mt-4 text-2xl font-bold text-[#4a8b2c] sm:text-3xl">${estimate.savings}</p>
+-                <p className="mt-3 text-xs text-slate-500">100% kWh generados / 0 kWh</p>
++              <input type="range" min="50" max="5000" step="10" value={monthlyKwh} onChange={updateConsumption} aria-labelledby="calculator-consumption-label" className="accent-[#f48020] w-full cursor-pointer" />
++              <div className="flex justify-between text-[11px] text-slate-500 mt-1.5">
++                <span>50 kWh</span><span>2,500 kWh</span><span>5,000+ kWh</span>
+               </div>
+             </div>
+-            <div className="bg-slate-50 rounded-lg px-3 py-2 text-xs flex flex-wrap justify-between items-center gap-2 my-4">
+-              <span className="flex items-center gap-2 text-slate-600">
+-                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="size-4 shrink-0 text-[#f48020]">
+-                  <circle cx="12" cy="12" r="4" />
+-                  <path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5" />
+-                </svg>
+-                Producción: {estimate.daily} kWh diarios en {region}
+-              </span>
+-              <span className="font-bold text-[#4a8b2c]">Tarifa DAC (-99%)</span>
++            <div className="flex flex-wrap items-center justify-between gap-2 text-xs my-4">
++              <span className="text-slate-600">Tarifa CFE aplicada:</span>
++              <span className="bg-slate-100 text-[#172d5b] font-bold px-3 py-1 rounded-full">${currentRate.toFixed(2)} / kWh ({currentTariff.label})</span>
++            </div>
++            <div aria-live="polite" aria-atomic="true" className="grid grid-cols-3 gap-2.5 mb-5">
++              <div className="min-w-0 bg-emerald-50/70 border border-emerald-200 rounded-xl p-2.5 sm:p-3 text-center">
++                <p className="text-[10px] font-bold text-[#4a8b2c] uppercase">AHORRO MENSUAL</p>
++                <p className="break-words text-lg sm:text-xl font-extrabold text-[#4a8b2c] my-0.5">${monthlySavings.toLocaleString('en-US')}</p>
++                <p className="text-[10px] text-[#4a8b2c]/90">MXN (99% ahorro)</p>
++              </div>
++              <div className="min-w-0 bg-emerald-50/70 border border-emerald-200 rounded-xl p-2.5 sm:p-3 text-center">
++                <p className="text-[10px] font-bold text-[#4a8b2c] uppercase">AHORRO BIMESTRAL</p>
++                <p className="break-words text-lg sm:text-xl font-extrabold text-[#4a8b2c] my-0.5">${bimonthlySavings.toLocaleString('en-US')}</p>
++                <p className="text-[10px] text-[#4a8b2c]/90">MXN por recibo CFE</p>
++              </div>
++              <div className="min-w-0 bg-[#172d5b] rounded-xl p-2.5 sm:p-3 text-center text-white">
++                <p className="text-[10px] font-bold text-slate-300 uppercase">AHORRO ANUAL</p>
++                <p className="break-words text-lg sm:text-xl font-extrabold text-[#f48020] my-0.5">${annualSavings.toLocaleString('en-US')}</p>
++                <p className="text-[10px] text-slate-300">MXN al año</p>
++              </div>
+             </div>
++            <button type="button" aria-haspopup="dialog" aria-expanded={isModalOpen} onClick={() => {
++              setStatusMessage(null);
++              setIsModalOpen(true);
++            }} className="bg-[#f48020] hover:bg-[#e07015] text-white font-bold py-3.5 px-5 rounded-xl w-full flex items-center justify-center gap-2 shadow-md transition-all">
++              Solicitar Estudio con este Cálculo →
++            </button>
+           </div>
+-          <a href="#contacto" className="bg-[#172d5b] hover:bg-[#102042] text-white font-bold py-3.5 px-4 rounded-xl w-full flex items-center justify-center gap-2 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">
+-            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-5 shrink-0">
+-              <path d="m13 2-9 12h7l-1 8 10-12h-7l1-8Z" />
+-            </svg>
+-            Cuantos kW/hora consumo bimestralmente
+-          </a>
+-          <p className="mt-3 text-center text-[10px] text-slate-500">Simulación técnica certificada conforme a irradiación solar promedio CFE</p>
+         </aside>
+         <div className="border-t border-white/15 pt-5 mt-10 flex flex-col gap-4 lg:col-span-2 xl:flex-row xl:items-center xl:justify-between">
+           <p className="flex items-center gap-2 text-sm font-bold text-white">
+@@ -316,6 +259,56 @@ export default function Hero() {
+           </div>
+         </div>
+       </div>
++      {isModalOpen && (
++        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs" onClick={(event) => {
++          if (event.target === event.currentTarget && !submittingRef.current) setIsModalOpen(false);
++        }}>
++          <div ref={modalRef} role="dialog" aria-modal="true" aria-labelledby="hero-quote-title" tabIndex={-1} className="w-full max-w-lg max-h-[90dvh] overflow-y-auto rounded-2xl bg-white p-5 sm:p-6 text-slate-800 shadow-2xl">
++            <div className="flex items-center justify-between gap-3">
++              <h2 id="hero-quote-title" className="text-xl font-bold text-[#172d5b]">Solicita tu estudio solar</h2>
++              <button type="button" aria-label="Cerrar solicitud" onClick={() => {
++                if (!submittingRef.current) setIsModalOpen(false);
++              }} className="flex size-10 shrink-0 items-center justify-center rounded-lg text-[#172d5b] hover:bg-slate-100">
++                <span aria-hidden="true">✕</span>
++              </button>
++            </div>
++            <dl className="my-5 space-y-2 rounded-xl bg-slate-50 p-4 text-sm">
++              <div className="flex flex-wrap justify-between gap-2">
++                <dt>Tarifa seleccionada</dt>
++                <dd className="font-bold">{currentTariff.label} (${currentRate.toFixed(2)} / kWh)</dd>
++              </div>
++              <div className="flex flex-wrap justify-between gap-2">
++                <dt>Consumo mensual</dt>
++                <dd className="font-bold">{monthlyKwh.toLocaleString('en-US')} kWh</dd>
++              </div>
++              <div className="flex flex-wrap justify-between gap-2 text-[#172d5b]">
++                <dt>Ahorro anual estimado</dt>
++                <dd className="font-bold">${annualSavings.toLocaleString('en-US')} MXN</dd>
++              </div>
++            </dl>
++            <form onSubmit={handleSubmit} aria-labelledby="hero-quote-title" aria-busy={isSubmitting} className="space-y-4">
++              <div>
++                <label htmlFor="hero-quote-name" className="text-sm font-bold text-[#172d5b]">Nombre completo</label>
++                <input id="hero-quote-name" name="nombre" type="text" autoComplete="name" required maxLength={150} disabled={isSubmitting || statusMessage?.success} className="mt-1 min-h-12 w-full rounded-lg border border-slate-300 px-3 py-2 focus:outline-[#f48020]" />
++              </div>
++              <div>
++                <label htmlFor="hero-quote-phone" className="text-sm font-bold text-[#172d5b]">Teléfono / WhatsApp</label>
++                <input id="hero-quote-phone" name="telefono" type="tel" autoComplete="tel" required maxLength={25} disabled={isSubmitting || statusMessage?.success} className="mt-1 min-h-12 w-full rounded-lg border border-slate-300 px-3 py-2 focus:outline-[#f48020]" />
++              </div>
++              <div>
++                <label htmlFor="hero-quote-email" className="text-sm font-bold text-[#172d5b]">Correo electrónico</label>
++                <input id="hero-quote-email" name="correo" type="email" autoComplete="email" required maxLength={254} disabled={isSubmitting || statusMessage?.success} className="mt-1 min-h-12 w-full rounded-lg border border-slate-300 px-3 py-2 focus:outline-[#f48020]" />
++              </div>
++              <button type="submit" disabled={isSubmitting || statusMessage?.success} className="w-full rounded-xl bg-[#f48020] px-5 py-3.5 font-bold text-white transition-all hover:bg-[#e07015] disabled:opacity-60">
++                {isSubmitting ? 'Enviando cálculo...' : statusMessage?.success ? 'Cálculo enviado' : 'Enviar cálculo y solicitar estudio'}
++              </button>
++              {statusMessage && (
++                <p role={statusMessage.success ? 'status' : 'alert'} className={`rounded-lg p-3 text-sm ${statusMessage.success ? 'bg-emerald-50 text-[#4a8b2c]' : 'bg-red-50 text-red-700'}`}>{statusMessage.message}</p>
++              )}
++            </form>
++          </div>
++        </div>
++      )}
+     </section>
+   );
+ }
+diff --git a/public/api/enviar-correo.php b/public/api/enviar-correo.php
+index 6cfc67a..92d5c6e 100644
+--- a/public/api/enviar-correo.php
++++ b/public/api/enviar-correo.php
+@@ -42,7 +42,7 @@ if ((int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 12 * 1024 * 1024
+ }
+ 
+ $fields = [];
+-foreach (['nombre' => 600, 'correo' => 254, 'telefono' => 25, 'pago' => 5] as $key => $limit) {
++foreach (['nombre' => 600, 'correo' => 254, 'telefono' => 25] as $key => $limit) {
+     $value = $_POST[$key] ?? null;
+     if (!is_string($value) || trim($value) === '' || strlen($value) > $limit
+         || preg_match('//u', $value) !== 1 || preg_match('/[\x00-\x1F\x7F]/', $value)) {
+@@ -57,9 +57,18 @@ $digits = preg_replace('/\D/', '', $fields['telefono']);
+ if (!preg_match('/^[+0-9(). -]+$/', $fields['telefono']) || strlen($digits) < 10 || strlen($digits) > 15) {
+     respond(422, false, 'Ingresa un teléfono de entre 10 y 15 dígitos.');
+ }
+-if (!in_array($fields['pago'], ['8000', '10000', '15000', '40000'], true)) {
++$message = $_POST['mensaje'] ?? '';
++if (!is_string($message) || strlen($message) > 2000
++    || preg_match('//u', $message) !== 1 || preg_match('/[\x00-\x1F\x7F]/', $message)) {
++    respond(422, false, 'El detalle del cálculo no es válido.');
++}
++$fields['mensaje'] = trim($message);
++$paymentRange = $_POST['pago'] ?? '';
++if (!in_array($paymentRange, ['8000', '10000', '15000', '40000'], true)
++    && !($paymentRange === '' && $fields['mensaje'] !== '')) {
+     respond(422, false, 'Selecciona un rango de pago válido.');
+ }
++$fields['pago'] = $paymentRange;
+ 
+ try {
+     $attachment = null;
+@@ -104,7 +113,8 @@ try {
+         . '<tr><th align="left">Nombre</th><td>' . $safe['nombre'] . '</td></tr>'
+         . '<tr><th align="left">Correo</th><td>' . $safe['correo'] . '</td></tr>'
+         . '<tr><th align="left">Teléfono / WhatsApp</th><td>' . $safe['telefono'] . '</td></tr>'
+-        . '<tr><th align="left">Pago bimestral CFE</th><td>Más de $' . $payment . ' MXN</td></tr>'
++        . ($fields['pago'] !== '' ? '<tr><th align="left">Pago bimestral CFE</th><td>Más de $' . $payment . ' MXN</td></tr>' : '')
++        . ($fields['mensaje'] !== '' ? '<tr><th align="left">Detalle del cálculo</th><td>' . $safe['mensaje'] . '</td></tr>' : '')
+         . '</table></body></html>';
+ 
+     $boundary = '=_PuntoSolar_' . bin2hex(random_bytes(24));

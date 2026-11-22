@@ -1,6 +1,11 @@
+import imgResidencial from '../../assets/media/A1.webp';
+import imgComercial from '../../assets/media/A2.webp';
+import imgIndustrial from '../../assets/media/A3.webp';
+
 const lines = [
   {
     id: 'residencial',
+    image: imgResidencial,
     category: 'Residencial',
     categoryColor: 'bg-primary',
     badge: 'Elimina Tarifa DAC',
@@ -12,6 +17,7 @@ const lines = [
   },
   {
     id: 'comercial',
+    image: imgComercial,
     category: 'Pymes y Comercio',
     categoryColor: 'bg-accent',
     badge: '100% Deducible de ISR',
@@ -23,6 +29,7 @@ const lines = [
   },
   {
     id: 'industrial',
+    image: imgIndustrial,
     category: 'Media y Alta Tensión',
     categoryColor: 'bg-primary',
     badge: 'GDMTO y GDMTH',
@@ -56,9 +63,9 @@ export default function SpecializedLines() {
         </header>
         <div className="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-3">
           {lines.map((line) => (
-            <article key={line.id} className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-lg">
-              <div className="relative h-56 bg-gray-200">
-                {/* NOTA: Reemplazar por fotografía oficial de la categoría */}
+            <article key={line.id} className="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-lg">
+              <div className="relative h-56 overflow-hidden bg-gray-200">
+                <img src={line.image} alt={line.title} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 motion-reduce:group-hover:scale-100 motion-reduce:transition-none" />
                 <span className={`absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-bold text-white ${line.categoryColor}`}>{line.category}</span>
                 <span className={`absolute bottom-4 right-4 flex items-center gap-1 rounded-full bg-white px-3 py-1 text-xs font-bold ${line.badgeColor}`}>
                   <CheckIcon className="size-4 shrink-0" />

@@ -22,10 +22,11 @@ export default function WhatsAppButton() {
       aria-label="Contactar por WhatsApp (abre en una pestaña nueva)"
       aria-hidden={!isVisible}
       tabIndex={isVisible ? 0 : -1}
-      className={`fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-success text-white shadow-2xl transition-all duration-300 hover:scale-110 hover:bg-green-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-success motion-reduce:transition-none ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}
+      className={`group fixed bottom-6 right-6 z-50 isolate flex h-14 w-14 items-center justify-center rounded-full bg-success text-white shadow-2xl hover:scale-110 transition-transform duration-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-success motion-reduce:hover:scale-100 motion-reduce:transition-none ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}
     >
-      <span aria-hidden="true" className="absolute -z-10 inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75 motion-reduce:animate-none" />
-      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="size-7">
+      <span aria-hidden="true" className="animate-ping absolute inset-0 inline-flex h-full w-full rounded-full bg-[#25D366] opacity-75 -z-10 pointer-events-none motion-reduce:animate-none motion-reduce:opacity-0" />
+      <span aria-hidden="true" className="absolute inset-0 rounded-full bg-success group-hover:bg-green-700 transition-colors duration-300 motion-reduce:transition-none" />
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="relative size-7">
         <path d="M21 11.5a9 9 0 0 1-13.5 7.8L3 21l1.7-4.5A9 9 0 1 1 21 11.5Z" />
         <path d="m8 7 2 3-1 1c1 2 2 3 4 4l1-1 3 2c-1 3-5 1-7-1s-4-6-2-8Z" />
       </svg>

@@ -40,27 +40,30 @@ export default function FAQSection() {
         {faqs.map((faq, index) => {
           const isOpen = openIndex === index;
           return (
-            <div key={faq.question}>
+            <div key={faq.question} onMouseEnter={() => {
+              // Evita que el mouseenter emulado por un toque abra y cierre la fila en el mismo gesto.
+              if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) setOpenIndex(index);
+            }} className={`overflow-hidden rounded-lg border bg-[#f8f9fa] transition-all duration-300 ease-out motion-reduce:transition-none ${isOpen ? 'border-[#172d5b]/40' : 'border-slate-200'}`}>
               <h3>
                 <button
                   id={`faq-question-${index}`}
                   type="button"
                   aria-expanded={isOpen}
-                  aria-controls={isOpen ? `faq-answer-${index}` : undefined}
-                  onClick={() => setOpenIndex(isOpen ? null : index)}
-                  className={`flex w-full items-center justify-between gap-4 rounded-lg bg-[#f8f9fa] p-5 text-left transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${isOpen ? 'rounded-b-none' : ''}`}
+                  aria-controls={`faq-answer-${index}`}
+                  onClick={() => setOpenIndex(openIndex === index ? null : index)}
+                  className="flex w-full items-center justify-between gap-4 rounded-lg p-5 text-left transition-colors hover:bg-gray-100 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
                 >
                   <span className="text-base font-semibold text-primary">{faq.question}</span>
-                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-5 shrink-0 text-primary">
-                    <path d={isOpen ? 'm6 15 6-6 6 6' : 'm6 9 6 6 6-6'} />
+                  <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`size-5 shrink-0 text-primary transition-transform duration-300 ease-out motion-reduce:transition-none ${isOpen ? 'rotate-180' : 'rotate-0'}`}>
+                    <path d="m6 9 6 6 6-6" />
                   </svg>
                 </button>
               </h3>
-              {isOpen && (
-                <div id={`faq-answer-${index}`} role="region" aria-labelledby={`faq-question-${index}`} className="rounded-b-lg bg-[#f8f9fa] px-5 pb-5 text-sm leading-relaxed text-gray-600">
-                  {faq.answer}
+              <div id={`faq-answer-${index}`} role="region" aria-labelledby={`faq-question-${index}`} aria-hidden={!isOpen} inert={!isOpen} className={`grid transition-all duration-300 ease-out motion-reduce:transition-none ${isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+                <div className="min-h-0 overflow-hidden">
+                  <div className="px-5 pb-5 text-sm leading-relaxed text-gray-600">{faq.answer}</div>
                 </div>
-              )}
+              </div>
             </div>
           );
         })}

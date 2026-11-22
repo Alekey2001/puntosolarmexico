@@ -42,7 +42,7 @@ if ((int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 12 * 1024 * 1024
 }
 
 $fields = [];
-foreach (['nombre' => 600, 'correo' => 254, 'telefono' => 25, 'pago' => 5] as $key => $limit) {
+foreach (['nombre' => 600, 'correo' => 254, 'telefono' => 25] as $key => $limit) {
     $value = $_POST[$key] ?? null;
     if (!is_string($value) || trim($value) === '' || strlen($value) > $limit
         || preg_match('//u', $value) !== 1 || preg_match('/[\x00-\x1F\x7F]/', $value)) {
@@ -57,9 +57,18 @@ $digits = preg_replace('/\D/', '', $fields['telefono']);
 if (!preg_match('/^[+0-9(). -]+$/', $fields['telefono']) || strlen($digits) < 10 || strlen($digits) > 15) {
     respond(422, false, 'Ingresa un teléfono de entre 10 y 15 dígitos.');
 }
-if (!in_array($fields['pago'], ['8000', '10000', '15000', '40000'], true)) {
+$message = $_POST['mensaje'] ?? '';
+if (!is_string($message) || strlen($message) > 2000
+    || preg_match('//u', $message) !== 1 || preg_match('/[\x00-\x1F\x7F]/', $message)) {
+    respond(422, false, 'El detalle del cálculo no es válido.');
+}
+$fields['mensaje'] = trim($message);
+$paymentRange = $_POST['pago'] ?? '';
+if (!in_array($paymentRange, ['8000', '10000', '15000', '40000'], true)
+    && !($paymentRange === '' && $fields['mensaje'] !== '')) {
     respond(422, false, 'Selecciona un rango de pago válido.');
 }
+$fields['pago'] = $paymentRange;
 
 try {
     $attachment = null;
@@ -104,7 +113,8 @@ try {
         . '<tr><th align="left">Nombre</th><td>' . $safe['nombre'] . '</td></tr>'
         . '<tr><th align="left">Correo</th><td>' . $safe['correo'] . '</td></tr>'
         . '<tr><th align="left">Teléfono / WhatsApp</th><td>' . $safe['telefono'] . '</td></tr>'
-        . '<tr><th align="left">Pago bimestral CFE</th><td>Más de $' . $payment . ' MXN</td></tr>'
+        . ($fields['pago'] !== '' ? '<tr><th align="left">Pago bimestral CFE</th><td>Más de $' . $payment . ' MXN</td></tr>' : '')
+        . ($fields['mensaje'] !== '' ? '<tr><th align="left">Detalle del cálculo</th><td>' . $safe['mensaje'] . '</td></tr>' : '')
         . '</table></body></html>';
 
     $boundary = '=_PuntoSolar_' . bin2hex(random_bytes(24));

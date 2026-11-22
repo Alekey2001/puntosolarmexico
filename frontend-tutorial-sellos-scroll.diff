@@ -1,0 +1,327 @@
+diff --git a/src/web/components/Hero.jsx b/src/web/components/Hero.jsx
+index 53aabad..efcd299 100644
+--- a/src/web/components/Hero.jsx
++++ b/src/web/components/Hero.jsx
+@@ -1,4 +1,5 @@
+ import { useEffect, useRef, useState } from 'react';
++import useScrollReveal, { scrollRevealClass } from '../hooks/useScrollReveal';
+ import heroVideo from '../../assets/media/hero-bg.mp4';
+ 
+ const tariffs = {
+@@ -25,6 +26,9 @@ const benefits = [
+ ];
+ 
+ export default function Hero() {
++  const revealRef = useScrollReveal();
++  const [isTutorialOpen, setIsTutorialOpen] = useState(false);
++  const tutorialRef = useRef(null);
+   const [isModalOpen, setIsModalOpen] = useState(false);
+   const [isSubmitting, setIsSubmitting] = useState(false);
+   const [statusMessage, setStatusMessage] = useState(null);
+@@ -110,8 +114,32 @@ export default function Hero() {
+     };
+   }, [isModalOpen]);
+ 
++  useEffect(() => {
++    if (!isTutorialOpen) return;
++    const previousFocus = document.activeElement;
++    const previousOverflow = document.body.style.overflow;
++    const dialog = tutorialRef.current;
++    const closeButton = dialog.querySelector('button');
++    closeButton.focus();
++    document.body.style.overflow = 'hidden';
++
++    const handleKeyDown = (event) => {
++      if (event.key === 'Escape') setIsTutorialOpen(false);
++      if (event.key === 'Tab') {
++        event.preventDefault();
++        closeButton.focus();
++      }
++    };
++    document.addEventListener('keydown', handleKeyDown);
++    return () => {
++      document.removeEventListener('keydown', handleKeyDown);
++      document.body.style.overflow = previousOverflow;
++      previousFocus?.focus({ preventScroll: true });
++    };
++  }, [isTutorialOpen]);
++
+   return (
+-    <section id="inicio" aria-labelledby="hero-title" className={`relative isolate overflow-hidden min-h-[90vh] flex items-center bg-primary px-6 pb-16 pt-28 font-sans text-white sm:px-10 lg:pb-24 lg:pt-32 ${isModalOpen ? 'z-[60]' : ''}`}>
++    <section ref={revealRef} id="inicio" aria-labelledby="hero-title" className={`relative isolate overflow-hidden min-h-[90vh] flex items-center bg-primary px-6 pb-16 pt-28 font-sans text-white sm:px-10 lg:pb-24 lg:pt-32 ${isModalOpen || isTutorialOpen ? 'z-[60]' : ''}`}>
+       <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover object-bottom origin-bottom scale-115 transform-gpu -z-20">
+         <source src={heroVideo} type="video/mp4" />
+       </video>
+@@ -144,7 +172,7 @@ export default function Hero() {
+         ))}
+       </div>
+       <div className="relative z-10 mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-20">
+-        <div>
++        <div data-scroll-reveal className={`${scrollRevealClass} delay-100`}>
+           <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-bold">
+             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-5 shrink-0 text-success">
+               <path d="M20 4c-8-2-15 1-15 8a7 7 0 0 0 7 7c7 0 9-7 8-15Z" />
+@@ -175,7 +203,7 @@ export default function Hero() {
+             <p className="mt-2 text-sm text-white/80">Más de 1,200 familias e industrias ya ahorran en su recibo CFE</p>
+           </div>
+         </div>
+-        <aside id="cotizacion" aria-labelledby="calculator-title" className="relative min-w-0 scroll-mt-6 bg-white rounded-2xl shadow-2xl overflow-hidden text-slate-800">
++        <aside data-scroll-reveal id="cotizacion" aria-labelledby="calculator-title" className={`relative min-w-0 scroll-mt-6 bg-white rounded-2xl shadow-2xl overflow-hidden text-slate-800 ${scrollRevealClass} delay-200`}>
+           <div className="bg-[#172d5b] px-5 py-4 text-white flex items-center gap-3">
+             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="size-7 shrink-0 text-[#f48020]">
+               <path d="M5 4h14l3 13H2L5 4Zm-1.5 6.5h17M10 4 9 17m5-13 1 13m-3 0v4m-4 0h8" />
+@@ -234,7 +262,15 @@ export default function Hero() {
+               setStatusMessage(null);
+               setIsModalOpen(true);
+             }} className="bg-[#f48020] hover:bg-[#e07015] text-white font-bold py-3.5 px-5 rounded-xl w-full flex items-center justify-center gap-2 shadow-md transition-all">
+-              Solicitar Estudio con este Cálculo →
++              Agendar con un especialista personalizado →
++            </button>
++            <button type="button" aria-haspopup="dialog" aria-expanded={isTutorialOpen} onClick={() => setIsTutorialOpen(true)} className="bg-[#172d5b] hover:bg-[#102042] text-white font-semibold py-3 px-4 rounded-xl w-full flex items-center justify-center gap-2.5 text-xs sm:text-sm transition-all mt-3 shadow-sm">
++              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="size-6 shrink-0 text-[#f48020]">
++                <circle cx="12" cy="12" r="9" />
++                <path d="m10 8 6 4-6 4V8Z" />
++              </svg>
++              <span className="min-w-0">¿Cuántos kW/hora consumo bimestralmente?</span>
++              <span className="bg-white/10 text-[10px] px-2 py-0.5 rounded-full shrink-0">Video Guía</span>
+             </button>
+           </div>
+         </aside>
+@@ -259,6 +295,25 @@ export default function Hero() {
+           </div>
+         </div>
+       </div>
++      {isTutorialOpen && (
++        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/75 backdrop-blur-xs" onClick={(event) => {
++          if (event.target === event.currentTarget) setIsTutorialOpen(false);
++        }}>
++          <div ref={tutorialRef} role="dialog" aria-modal="true" aria-labelledby="hero-tutorial-title" aria-describedby="hero-tutorial-status" className="w-full max-w-3xl max-h-[90dvh] overflow-y-auto rounded-2xl bg-white p-4 sm:p-6 text-[#172d5b] shadow-2xl">
++            <div className="mb-4 flex items-center justify-between gap-3">
++              <h2 id="hero-tutorial-title" className="text-lg font-bold">Cómo leer tu recibo CFE bimestral</h2>
++              <button type="button" aria-label="Cerrar tutorial" onClick={() => setIsTutorialOpen(false)} className="flex size-10 shrink-0 items-center justify-center rounded-lg hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-[#f48020]">
++                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="size-5">
++                  <path d="m6 6 12 12M18 6 6 18" />
++                </svg>
++              </button>
++            </div>
++            <div className="aspect-video flex items-center justify-center rounded-xl bg-[#172d5b] p-4 text-center text-white sm:p-8">
++              <p id="hero-tutorial-status" role="status" className="max-w-md text-sm leading-relaxed sm:text-base">Tutorial en video: Cómo leer tu recibo CFE bimestral — Próximamente disponible</p>
++            </div>
++          </div>
++        </div>
++      )}
+       {isModalOpen && (
+         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs" onClick={(event) => {
+           if (event.target === event.currentTarget && !submittingRef.current) setIsModalOpen(false);
+diff --git a/src/web/components/CertificationsBanner.jsx b/src/web/components/CertificationsBanner.jsx
+index 355577a..05d2ce2 100644
+--- a/src/web/components/CertificationsBanner.jsx
++++ b/src/web/components/CertificationsBanner.jsx
+@@ -1,16 +1,65 @@
+ const certifications = [
+-  { name: 'CRE', detail: 'Net Metering', color: 'bg-emerald-100/80 text-[#4a8b2c]', icon: 'm12 2 3 2 4 1 1 4 2 3-2 3-1 4-4 1-3 2-3-2-4-1-1-4-2-3 2-3 1-4 4-1 3-2Z M8 12l3 3 5-6' },
+-  { name: 'CFE', detail: 'Interconexión', color: 'bg-emerald-100/80 text-[#4a8b2c]', icon: 'm13 2-9 12h7l-1 8 10-12h-7l1-8Z' },
+-  { name: 'Sello FIDE', detail: 'Ahorro Oficial', color: 'bg-orange-100/80 text-[#f48020]', icon: 'm12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z' },
+-  { name: 'NOM-001', detail: 'Seguridad Eléctrica', color: 'bg-blue-100/80 text-[#172d5b]', icon: 'M12 3 4 6v6c0 5 8 9 8 9s8-4 8-9V6l-8-3Z m-4 9 3 3 5-6' },
+-  { name: 'UL / IEC', detail: 'Tier 1 Mundial', color: 'bg-blue-100/80 text-[#172d5b]', icon: 'M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z M3 12h18 M12 3c-5 5-5 13 0 18 5-5 5-13 0-18Z' },
+-  { name: 'Código de Red', detail: 'Cumplimiento', color: 'bg-blue-100/80 text-[#172d5b]', icon: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6Z M14 2v6h6 M8 15l3 3 5-6' },
++  {
++    name: 'CRE', institution: 'Comisión Reguladora de Energía', detail: 'Permiso Generación Distribuida',
++    emblem: <>
++      <path d="m24 3 6 4 7 1 3 7 5 9-5 9-3 7-7 1-6 4-6-4-7-1-3-7-5-9 5-9 3-7 7-1 6-4Z" />
++      <circle cx="24" cy="24" r="14" />
++      <text x="24" y="25" textAnchor="middle" fill="currentColor" stroke="none" fontSize="10" fontWeight="800">CRE</text>
++      <path d="m18 31 4 3 8-7" stroke="#4a8b2c" strokeWidth="2.5" />
++    </>,
++  },
++  {
++    name: 'CFE', institution: 'Comisión Federal de Electricidad', detail: 'Contrato Interconexión Bidireccional',
++    emblem: <>
++      <path d="M19 5h10l9 38M19 5 10 43M16 15h16M13 27h22M10 43h28M19 5l13 10-19 12 25 16M29 5 16 15l19 12-25 16M8 15h32M5 27h38M8 15v5m32-5v5M5 27v5m38-5v5" />
++      <path d="m25 17-6 9h5l-1 7 7-11h-5l1-5Z" fill="#4a8b2c" stroke="#4a8b2c" />
++    </>,
++  },
++  {
++    name: 'SELLO FIDE', institution: 'Fideicomiso para el Ahorro', detail: 'Equipos con Eficiencia Certificada',
++    emblem: <g stroke="#f48020">
++      <path d="M24 4 8 10v13c0 10 16 19 16 19s16-9 16-19V10L24 4Z" />
++      <path d="M24 9 13 13v10c0 7 11 13 11 13s11-6 11-13V13L24 9Z" />
++      <text x="24" y="23" textAnchor="middle" fill="#f48020" stroke="none" fontSize="9" fontWeight="800">FIDE</text>
++      <path d="m19 28 4 3 6-6" />
++    </g>,
++  },
++  {
++    name: 'NOM-001-SEDE', institution: 'Norma Oficial Mexicana', detail: 'Instalaciones Eléctricas Seguras',
++    emblem: <>
++      <path d="m15 4-11 11v18l11 11h18l11-11V15L33 4H15Z" />
++      <path d="M16 9 9 16v16l7 7h16l7-7V16l-7-7H16Z" />
++      <text x="24" y="24" textAnchor="middle" fill="currentColor" stroke="none" fontSize="10" fontWeight="800">NOM</text>
++      <path d="M16 30h16" stroke="#4a8b2c" strokeWidth="2.5" />
++      <path d="M20 34h8" />
++    </>,
++  },
++  {
++    name: 'UL 1703 / IEC 61215', institution: 'Estándar Internacional Tier 1', detail: 'Módulos Fotovoltaicos Certificados',
++    emblem: <>
++      <circle cx="22" cy="22" r="18" />
++      <ellipse cx="22" cy="22" rx="8" ry="18" />
++      <path d="M4 22h36M7 12h30M7 32h20" />
++      <circle cx="35" cy="35" r="10" fill="#f8fafc" stroke="#4a8b2c" />
++      <path d="m30 35 3 3 7-7" stroke="#4a8b2c" strokeWidth="2.5" />
++    </>,
++  },
++  {
++    name: 'CÓDIGO DE RED', institution: 'CENACE / CRE', detail: 'Cumplimiento Calidad de Energía',
++    emblem: <>
++      <rect x="5" y="5" width="38" height="38" rx="6" />
++      <path d="M14 5v38M24 5v38M34 5v38M5 14h38M5 24h38M5 34h38" strokeOpacity="0.2" />
++      <path d="M8 24h5c4-18 6 18 11 0s7 18 11 0h5" stroke="#4a8b2c" strokeWidth="2.5" />
++      <circle cx="8" cy="24" r="2" fill="#f48020" stroke="none" />
++      <circle cx="40" cy="24" r="2" fill="#f48020" stroke="none" />
++    </>,
++  },
+ ];
+ 
+ export default function CertificationsBanner() {
+   return (
+     <section aria-labelledby="certifications-title" className="bg-white border-b border-slate-200/80 py-6 font-sans">
+-      <div className="max-w-7xl mx-auto px-6 flex flex-col xl:flex-row items-center justify-between gap-6">
++      <div className="max-w-7xl mx-auto px-6 flex flex-col items-start gap-6">
+         <div className="flex items-center gap-3">
+           <div className="w-11 h-11 rounded-xl bg-[#172d5b]/10 text-[#172d5b] flex items-center justify-center shrink-0">
+             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="size-6">
+@@ -23,17 +72,18 @@ export default function CertificationsBanner() {
+             <p className="mt-1 text-xs text-slate-500">Acreditación nivel nacional para interconexión segura y legal en México</p>
+           </div>
+         </div>
+-        <ul aria-label="Certificaciones y avales" className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 w-full xl:w-auto">
+-          {certifications.map(({ name, detail, color, icon }) => (
+-            <li key={name} className="bg-slate-50/90 border border-slate-200/80 rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 hover:border-slate-300 transition-colors">
+-              <span className={`size-6 rounded-full flex items-center justify-center shrink-0 ${color}`}>
+-                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="size-4">
+-                  <path d={icon} />
++        <ul aria-label="Certificaciones y avales" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 w-full">
++          {certifications.map(({ name, institution, detail, emblem }) => (
++            <li key={name} className="bg-white border border-slate-200/90 shadow-xs rounded-xl p-3.5 flex items-center gap-3 hover:border-[#172d5b]/40 transition-all">
++              <span className="w-11 h-11 rounded-lg bg-slate-50 border border-slate-200/70 flex items-center justify-center shrink-0">
++                <svg aria-hidden="true" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="size-9 text-[#172d5b]">
++                  {emblem}
+                 </svg>
+               </span>
+               <div className="min-w-0">
+-                <p className="text-xs font-bold text-[#172d5b]">{name}</p>
+-                <p className="mt-0.5 text-[10px] text-slate-500">{detail}</p>
++                <p className="font-extrabold text-xs text-[#172d5b] tracking-tight">{name}</p>
++                <p className="mt-1 text-[11px] text-slate-500 leading-tight">{institution}</p>
++                <p className="mt-1 text-[11px] text-slate-500 leading-tight">{detail}</p>
+               </div>
+             </li>
+           ))}
+diff --git a/src/web/components/ServicesOverview.jsx b/src/web/components/ServicesOverview.jsx
+index 89ff2d3..9dbf736 100644
+--- a/src/web/components/ServicesOverview.jsx
++++ b/src/web/components/ServicesOverview.jsx
+@@ -1,3 +1,5 @@
++import useScrollReveal, { scrollRevealClass, scrollRevealDelays } from '../hooks/useScrollReveal';
++
+ const services = [
+   {
+     title: 'Diseño Fotovoltaico',
+@@ -26,17 +28,18 @@ const services = [
+ ];
+ 
+ export default function ServicesOverview() {
++  const revealRef = useScrollReveal();
+   return (
+-    <section aria-labelledby="services-overview-title" className="bg-gray-50 py-24 font-sans">
++    <section ref={revealRef} aria-labelledby="services-overview-title" className="bg-gray-50 py-24 font-sans">
+       <div className="mx-auto max-w-7xl px-6">
+-        <header className="mb-16 flex flex-col items-center text-center">
++        <header data-scroll-reveal className={`mb-16 flex flex-col items-center text-center ${scrollRevealClass}`}>
+           <p className="text-sm font-bold uppercase tracking-widest text-accent">SERVICIO INTEGRAL, LLAVE EN MANO</p>
+           <h2 id="services-overview-title" className="mt-3 text-4xl font-bold text-primary">¿Qué Hacemos en Punto Solar México?</h2>
+           <p className="mt-4 max-w-2xl leading-relaxed text-gray-600">Nos encargamos del 100% del ciclo fotovoltaico para que no tengas que preocuparte por trámites burocráticos o fallas técnicas.</p>
+         </header>
+         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+-          {services.map((service) => (
+-            <article key={service.title} className="flex h-full flex-col rounded-xl bg-white p-8 shadow-sm transition-shadow hover:shadow-md">
++          {services.map((service, index) => (
++            <article key={service.title} data-scroll-reveal className={`flex h-full flex-col rounded-xl bg-white p-8 shadow-sm hover:shadow-md ${scrollRevealClass} ${scrollRevealDelays[index % scrollRevealDelays.length]}`}>
+               <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-gray-100">
+                 <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="size-6 text-primary">
+                   <path d={service.icon} />
+diff --git a/src/web/components/Proceso.jsx b/src/web/components/Proceso.jsx
+index eeab0fd..8c8dec2 100644
+--- a/src/web/components/Proceso.jsx
++++ b/src/web/components/Proceso.jsx
+@@ -1,3 +1,5 @@
++import useScrollReveal, { scrollRevealClass, scrollRevealDelays } from '../hooks/useScrollReveal';
++
+ const steps = [
+   {
+     title: 'Diseño y cotización',
+@@ -20,14 +22,17 @@ const steps = [
+ ];
+ 
+ export default function Proceso() {
++  const revealRef = useScrollReveal();
+   return (
+-    <section id="proceso" aria-labelledby="proceso-title" className="bg-gray-50 px-6 py-20 font-sans sm:px-10">
++    <section ref={revealRef} id="proceso" aria-labelledby="proceso-title" className="bg-gray-50 px-6 py-20 font-sans sm:px-10">
+       <div className="mx-auto max-w-7xl">
+-        <p className="text-sm font-bold uppercase tracking-widest text-accent">Paso a paso</p>
+-        <h2 id="proceso-title" className="mt-3 text-3xl font-bold text-primary sm:text-4xl">Tu camino hacia la energía solar.</h2>
++        <header data-scroll-reveal className={scrollRevealClass}>
++          <p className="text-sm font-bold uppercase tracking-widest text-accent">Paso a paso</p>
++          <h2 id="proceso-title" className="mt-3 text-3xl font-bold text-primary sm:text-4xl">Tu camino hacia la energía solar.</h2>
++        </header>
+         <ol className="mt-10 grid grid-cols-1 gap-8 md:grid-cols-3">
+           {steps.map(({ title, description, icon, color }, index) => (
+-            <li key={title} className="relative rounded-2xl border border-gray-100 bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:border-accent/30 hover:shadow-xl motion-reduce:transform-none motion-reduce:transition-none">
++            <li key={title} data-scroll-reveal className={`relative rounded-2xl border border-gray-100 bg-white p-8 shadow-sm hover:-translate-y-2 hover:border-accent/30 hover:shadow-xl ${scrollRevealClass} ${scrollRevealDelays[index]}`}>
+               <span aria-hidden="true" className="absolute right-4 top-4 text-5xl font-black text-gray-100">0{index + 1}</span>
+               <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className={`relative size-10 ${color}`}>
+                 <path d={icon} />
+diff --git a/src/web/components/EnergyEfficiency.jsx b/src/web/components/EnergyEfficiency.jsx
+index 70ff311..36b3ce8 100644
+--- a/src/web/components/EnergyEfficiency.jsx
++++ b/src/web/components/EnergyEfficiency.jsx
+@@ -1,3 +1,5 @@
++import useScrollReveal, { scrollRevealClass, scrollRevealDelays } from '../hooks/useScrollReveal';
++
+ const steps = [
+   {
+     number: '01',
+@@ -23,9 +25,10 @@ const steps = [
+ ];
+ 
+ export default function EnergyEfficiency() {
++  const revealRef = useScrollReveal();
+   return (
+-    <section aria-labelledby="energy-efficiency-title" className="bg-gray-50/50 px-6 py-16 font-sans lg:py-24">
+-      <div className="mx-auto max-w-3xl text-center">
++    <section ref={revealRef} aria-labelledby="energy-efficiency-title" className="bg-gray-50/50 px-6 py-16 font-sans lg:py-24">
++      <div data-scroll-reveal className={`mx-auto max-w-3xl text-center ${scrollRevealClass}`}>
+         <p className="inline-flex items-center gap-2 rounded-full bg-success/10 px-4 py-2 text-xs font-bold tracking-wide text-success">
+           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-5 shrink-0">
+             <path d="M20 4c-8-2-15 1-15 8a7 7 0 0 0 7 7c7 0 9-7 8-15ZM4 21 15 10" />
+@@ -36,7 +39,7 @@ export default function EnergyEfficiency() {
+         <p className="mt-4 leading-relaxed text-gray-600">Con nuestro esquema de interconexión bidireccional avalado por CFE, tu sistema solar produce excedentes durante el día que se abonan en saldo a favor en la red eléctrica.</p>
+       </div>
+       <div className="mx-auto mt-12 grid max-w-7xl items-center gap-12 lg:grid-cols-2">
+-        <article aria-labelledby="consumption-comparison-title" className="min-w-0 rounded-2xl bg-white p-8 shadow-xl">
++        <article data-scroll-reveal aria-labelledby="consumption-comparison-title" className={`min-w-0 rounded-2xl bg-white p-8 shadow-xl ${scrollRevealClass} delay-100`}>
+           <div className="flex flex-wrap items-start justify-between gap-3">
+             <div className="min-w-0 flex-1">
+               <h3 id="consumption-comparison-title" className="text-xl font-bold text-primary">Comparativo de Consumo Real</h3>
+@@ -77,8 +80,8 @@ export default function EnergyEfficiency() {
+           </footer>
+         </article>
+         <ol aria-label="Proceso de generación e interconexión solar" className="flex flex-col gap-8">
+-          {steps.map((step) => (
+-            <li key={step.number} className="flex items-start gap-5">
++          {steps.map((step, index) => (
++            <li key={step.number} data-scroll-reveal className={`flex items-start gap-5 ${scrollRevealClass} ${scrollRevealDelays[index]}`}>
+               <div className={`flex size-20 shrink-0 flex-col items-center justify-center gap-1 rounded-xl text-white ${step.color}`}>
+                 <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="size-6">
+                   <path d={step.icon} />
