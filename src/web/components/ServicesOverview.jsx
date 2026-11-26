@@ -35,8 +35,8 @@ const services = [
   },
   {
     title: 'Financiamiento Solar',
-    description: 'Alianzas con FIDE, banca verde y esquemas de arrendamiento puro con 0% de enganche. Tu ahorro mensual paga la mensualidad del equipo.',
-    footer: '0% Enganche Disponible',
+    description: 'Inicia tu proyecto fotovoltaico mediante parcialidades programadas por avance de obra, sin intermediarios bancarios costosos',
+    footer: 'Planes de Inversión Solar',
     icon: <>
       <path d="m15 2 12 4v11c0 7-12 13-12 13S3 24 3 17V6l12-4Z" />
       <path d="M18 9h-6a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-6m4-14v16" stroke="#f48020" />

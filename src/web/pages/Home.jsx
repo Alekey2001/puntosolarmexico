@@ -1,7 +1,6 @@
 import Hero from '../components/Hero.jsx';
 import CertificationsBanner from '../components/CertificationsBanner.jsx';
 import LeadFormSection from '../components/LeadFormSection.jsx';
-import TechAllies from '../components/TechAllies.jsx';
 import EnergyEfficiency from '../components/EnergyEfficiency.jsx';
 import ImpactStats from '../components/ImpactStats.jsx';
 import SpecializedLines from '../components/SpecializedLines.jsx';
@@ -18,7 +17,6 @@ export default function Home() {
       <Hero />
       <CertificationsBanner />
       <LeadFormSection />
-      <TechAllies />
       <EnergyEfficiency />
       <ImpactStats />
       <SpecializedLines />

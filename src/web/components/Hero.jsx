@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import useScrollReveal, { scrollRevealClass } from '../hooks/useScrollReveal';
 import heroVideo from '../../assets/media/hero-bg.mp4';
+import { tier1Allies } from '../data/tier1Allies';
+import AllyLogo from './AllyLogo';
 
 const tariffs = {
   residencial: { label: 'Residencial', rate: 3.00, icon: '🏠' },
@@ -24,7 +26,8 @@ const benefits = [
   'Garantía de rendimiento lineal por 25 años en paneles Tier 1',
   'Gestión integral de trámites y medidor bidireccional CFE',
 ];
-
+const MIN_KWH = 1;
+const MAX_KWH = 100000;
 export default function Hero() {
   const revealRef = useScrollReveal();
   const [isTutorialOpen, setIsTutorialOpen] = useState(false);
@@ -34,18 +37,41 @@ export default function Hero() {
   const [statusMessage, setStatusMessage] = useState(null);
   const [tariffType, setTariffType] = useState('residencial');
   const [monthlyKwh, setMonthlyKwh] = useState(600);
+  const [kwhInput, setKwhInput] = useState('600');
   const modalRef = useRef(null);
   const submittingRef = useRef(false);
+  const [selectedAlly, setSelectedAlly] = useState(null);
+  const allyRef = useRef(null);
   const currentTariff = tariffs[tariffType];
   const currentRate = currentTariff.rate;
   const monthlySavings = Math.round(monthlyKwh * currentRate * 0.99);
   const bimonthlySavings = monthlySavings * 2;
   const annualSavings = monthlySavings * 12;
 
-  const updateConsumption = (event) => {
-    const value = event.target.valueAsNumber;
-    setMonthlyKwh(Number.isFinite(value) ? Math.min(5000, Math.max(50, value)) : 50);
-  };
+const handleKwhInputChange = (event) => {
+  const raw = event.target.value.replace(/\D/g, '');
+  if (raw === '') {
+    setKwhInput('');
+    setMonthlyKwh(0);
+    return;
+  }
+  const clamped = Math.min(MAX_KWH, Number(raw));
+  setKwhInput(String(clamped));
+  setMonthlyKwh(clamped);
+};
+
+const normalizeKwh = () => {
+  if (monthlyKwh < MIN_KWH) {
+    setMonthlyKwh(MIN_KWH);
+    setKwhInput(String(MIN_KWH));
+  }
+};
+
+const handleSliderChange = (event) => {
+  const val = Number(event.target.value);
+  setMonthlyKwh(val);
+  setKwhInput(String(val));
+};
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -137,9 +163,42 @@ export default function Hero() {
       previousFocus?.focus({ preventScroll: true });
     };
   }, [isTutorialOpen]);
+useEffect(() => {
+  if (!selectedAlly) return;
+  const previousFocus = document.activeElement;
+  const previousOverflow = document.body.style.overflow;
+  const dialog = allyRef.current;
+  dialog.querySelector('button').focus();
+  document.body.style.overflow = 'hidden';
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'Escape') setSelectedAlly(null);
+    if (event.key !== 'Tab') return;
+    const controls = dialog.querySelectorAll('a[href], button:not(:disabled)');
+    const first = controls[0];
+    const last = controls[controls.length - 1];
+    if (!dialog.contains(document.activeElement)) {
+      event.preventDefault();
+      first.focus();
+    } else if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  };
+
+  document.addEventListener('keydown', handleKeyDown);
+  return () => {
+    document.removeEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = previousOverflow;
+    previousFocus?.focus({ preventScroll: true });
+  };
+}, [selectedAlly]);
 
   return (
-    <section ref={revealRef} id="inicio" aria-labelledby="hero-title" className={`relative isolate overflow-hidden min-h-[90vh] flex items-center bg-primary px-6 pb-16 pt-28 font-sans text-white sm:px-10 lg:pb-24 lg:pt-32 ${isModalOpen || isTutorialOpen ? 'z-[60]' : ''}`}>
+    <section ref={revealRef} id="inicio" aria-labelledby="hero-title" className={`relative isolate overflow-hidden min-h-[90vh] flex items-center bg-primary px-6 pb-16 pt-28 font-sans text-white sm:px-10 lg:pb-24 lg:pt-32 ${isModalOpen || isTutorialOpen || selectedAlly ? 'z-[60]' : ''}`}>
       <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover object-bottom origin-bottom scale-115 transform-gpu -z-20">
         <source src={heroVideo} type="video/mp4" />
       </video>
@@ -219,14 +278,29 @@ export default function Hero() {
               <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                 <label id="calculator-consumption-label" htmlFor="calculator-consumption" className="text-[11px] font-bold text-[#172d5b] uppercase">2. CONSUMO PROMEDIO MENSUAL (KWH)</label>
                 <div className="flex shrink-0 items-center gap-1.5">
-                  <input id="calculator-consumption" type="number" min="50" max="5000" value={monthlyKwh} onChange={updateConsumption} className="w-24 text-right font-bold text-[#172d5b] bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-sm focus:outline-none focus:border-[#f48020]" />
-                  <span className="text-xs font-medium text-slate-600">kWh</span>
+                 <input
+  id="calculator-consumption"
+  type="text"
+  inputMode="numeric"
+  autoComplete="off"
+  maxLength={6}
+  value={kwhInput}
+  onChange={handleKwhInputChange}
+  onBlur={normalizeKwh}
+  onKeyDown={(event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      normalizeKwh();
+    }
+  }}
+  className="w-28 sm:w-32 text-right font-bold text-[#172d5b] bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-sm focus:outline-none focus:border-[#f48020]"
+/>
                 </div>
               </div>
-              <input type="range" min="50" max="5000" step="10" value={monthlyKwh} onChange={updateConsumption} aria-labelledby="calculator-consumption-label" className="accent-[#f48020] w-full cursor-pointer" />
-              <div className="flex justify-between text-[11px] text-slate-500 mt-1.5">
-                <span>50 kWh</span><span>2,500 kWh</span><span>5,000+ kWh</span>
-              </div>
+              <input type="range" min={MIN_KWH} max={MAX_KWH} step={1} value={monthlyKwh} onChange={handleSliderChange} aria-labelledby="calculator-consumption-label" className="accent-[#f48020] w-full cursor-pointer" />
+<div className="flex justify-between text-[11px] text-slate-500 mt-1.5">
+  <span>1 kWh</span><span>50,000 kWh</span><span>100,000 kWh</span>
+</div>
             </div>
             <div className="flex flex-wrap items-center justify-between gap-2 text-xs my-4">
               <span className="text-slate-600">Tarifa CFE aplicada:</span>
@@ -265,26 +339,34 @@ export default function Hero() {
             </button>
           </div>
         </aside>
-        <div className="border-t border-white/15 pt-5 mt-10 flex flex-col gap-4 lg:col-span-2 xl:flex-row xl:items-center xl:justify-between">
-          <p className="flex items-center gap-2 text-sm font-bold text-white">
-            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-5 shrink-0 text-[#f48020]">
-              <path d="M3 21h18M5 21V3h14v18M9 21v-4h6v4M9 7h1m4 0h1M9 12h1m4 0h1" />
-            </svg>
-            Instalaciones Reales Punto Solar México
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {[
-              ['Casa Residencial DAC (12 kWp)', 'bg-[#4a8b2c]'],
-              ['Comercio & Pyme (45 kWp)', 'bg-[#f48020]'],
-              ['Industria Acero (450 kWp)', 'bg-sky-300'],
-            ].map(([label, color]) => (
-              <span key={label} className="bg-white/10 backdrop-blur-sm border border-white/15 rounded-full px-3.5 py-1.5 text-xs text-white flex items-center gap-2">
-                <span aria-hidden="true" className={`size-2 shrink-0 rounded-full ${color}`} />
-                {label}
-              </span>
-            ))}
-          </div>
-        </div>
+      <div className="border-t border-white/15 pt-5 mt-8 flex flex-col gap-4 lg:col-span-2 xl:flex-row xl:items-center xl:justify-between">
+  <div className="flex items-center gap-3">
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="size-7 shrink-0 text-[#f48020]">
+      <path d="M12 3 4 6v6c0 4.5 3.2 8 8 9 4.8-1 8-4.5 8-9V6l-8-3Z" />
+      <path d="m9 12 2 2 4-4" />
+    </svg>
+    <div>
+      <p className="text-sm font-bold text-white">Equipamiento Tier 1 Certificado</p>
+      <p className="text-[11px] text-white/60">Haz clic para ver ficha técnica</p>
+    </div>
+  </div>
+  <ul aria-label="Aliados tecnológicos Tier 1" className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3 w-full xl:w-auto">
+    {tier1Allies.map((ally) => (
+      <li key={ally.id}>
+        <button
+          type="button"
+          aria-haspopup="dialog"
+          aria-label={`Ver ficha técnica de ${ally.brand}`}
+          onClick={() => setSelectedAlly(ally)}
+          className="group flex w-full cursor-pointer flex-col items-center gap-1 rounded-xl border border-white/20 bg-white/95 px-3.5 py-2.5 shadow-md transform-gpu transition-all duration-300 ease-out hover:-translate-y-0.5 hover:scale-108 hover:bg-white hover:shadow-xl hover:ring-2 hover:ring-[#f48020]"
+        >
+          <AllyLogo id={ally.id} brand={ally.brand} />
+          <span className="text-[10px] font-semibold text-slate-500 group-hover:text-[#f48020]">Ficha técnica →</span>
+        </button>
+      </li>
+    ))}
+  </ul>
+</div>
       </div>
       {isTutorialOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/75 backdrop-blur-xs" onClick={(event) => {
@@ -355,6 +437,51 @@ export default function Hero() {
           </div>
         </div>
       )}
+      {selectedAlly && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/75 backdrop-blur-xs" onClick={(event) => {
+    if (event.target === event.currentTarget) setSelectedAlly(null);
+  }}>
+    <div ref={allyRef} role="dialog" aria-modal="true" aria-labelledby="ally-title" className="w-full max-w-lg max-h-[90dvh] overflow-y-auto rounded-2xl bg-white shadow-2xl text-slate-800">
+      <div className="flex items-start justify-between gap-3 bg-[#172d5b] px-5 py-4 text-white">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-wider text-[#f48020]">{selectedAlly.category}</p>
+          <h2 id="ally-title" className="text-xl font-bold">{selectedAlly.brand}</h2>
+        </div>
+        <button type="button" aria-label="Cerrar ficha técnica" onClick={() => setSelectedAlly(null)} className="flex size-10 shrink-0 items-center justify-center rounded-lg hover:bg-white/10">
+          <span aria-hidden="true">✕</span>
+        </button>
+      </div>
+      <div className="space-y-4 p-5 sm:p-6">
+        <div className="rounded-r-xl border-l-4 border-[#f48020] bg-slate-50 p-3">
+          <p className="text-sm font-bold text-[#172d5b]">{selectedAlly.equipmentName}</p>
+          <p className="mt-1 text-xs text-slate-600"><span className="font-bold">Modelos:</span> {selectedAlly.models}</p>
+        </div>
+        <p className="text-sm leading-relaxed text-slate-600">{selectedAlly.summary}</p>
+        <dl className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+          {selectedAlly.specs.map((spec) => (
+            <div key={spec.label} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <dt className="text-[10px] font-bold uppercase text-slate-500">{spec.label}</dt>
+              <dd className="mt-0.5 text-sm font-semibold text-[#172d5b]">{spec.value}</dd>
+            </div>
+          ))}
+        </dl>
+        <ul aria-label="Certificaciones" className="flex flex-wrap gap-2">
+          {selectedAlly.certifications.map((cert) => (
+            <li key={cert} className="rounded-full bg-[#4a8b2c] px-3 py-1 text-xs font-bold text-white">{cert}</li>
+          ))}
+        </ul>
+        <a
+          href={`${waUrl}${encodeURIComponent(`Quiero cotizar con equipo ${selectedAlly.brand}: ${selectedAlly.equipmentName}`)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex w-full items-center justify-center rounded-xl bg-[#f48020] px-5 py-3.5 font-bold text-white shadow-md transition-all hover:bg-[#e07015]"
+        >
+          Solicitar cotización con este equipo →
+        </a>
+      </div>
+    </div>
+  </div>
+)}
     </section>
   );
 }

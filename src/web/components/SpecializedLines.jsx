@@ -11,8 +11,8 @@ const lines = [
     badge: 'Elimina Tarifa DAC',
     badgeColor: 'text-success',
     title: 'Energía Solar Residencial',
-    description: 'Protege la economía de tu familia eliminando la tarifa de alto consumo (DAC). Disfruta de aire acondicionado, calefacción y alberca sin preocuparte por el recibo de luz.',
-    benefits: ['Retorno de inversión en 3 a 4 años', 'Aumento de plusvalía inmobiliaria', 'Monitoreo en app móvil 24/7'],
+    description: 'Da el paso hacia la transición a energías renovables en tu hogar y reduce hasta en un 99% tu recibo de luz CFE. Con nuestros paneles solares residenciales de alta eficiencia, disfruta de aire acondicionado, climatización y todos tus equipos con energía limpia, sustentable y un ahorro real para tu familia.',
+    benefits: ['Retorno de inversión en 1 a 2 años', 'Aumento de plusvalía inmobiliaria', 'Monitoreo en app móvil 24/7'],
     action: 'Ver Soluciones Residenciales',
   },
   {
@@ -23,7 +23,7 @@ const lines = [
     badge: '100% Deducible de ISR',
     badgeColor: 'text-success',
     title: 'Comercios y Negocios',
-    description: 'Disminuye drásticamente costos operativos fijos en restaurantes, plazas comerciales, colegios y clínicas. Aprovecha el incentivo de la LISR con deducción fiscal acelerada del 100%.',
+    description: 'Reduce significativamente los costos operativos de tu empresa con paneles solares comerciales de alto rendimiento. Una solución diseñada para medianos y grandes comercios —como plazas comerciales, hoteles, supermercados, restaurantes, clínicas y agencias— que buscan proteger su rentabilidad y optimizar su gasto energético ante CFE. ',
     benefits: ['Deducción inmediata según Art. 34 LISR', 'Tarifa Comercial PDBT, GDMTO', 'Retornos de inversión (ROI) acelerados'],
     action: 'Ver Soluciones Comerciales',
   },
@@ -36,7 +36,7 @@ const lines = [
     badgeColor: 'text-accent',
     title: 'Media y Alta Tensión Industrial',
     description: 'Ingeniería fotovoltaica para naves industriales, centros de distribución y maquilas. Mitigamos picos de demanda y cargos por capacidad en tarifas horarias de media tensión.',
-    benefits: ['Proyectos llave en mano hasta 500 kWp', 'Cumplimiento estricto del Código de Red', 'Certificados de Energía Limpia (CELs)'],
+    benefits: ['Proyectos llave en mano hasta 500 kWp', 'Cumplimiento estricto del Código de Red', ' certificaciones UVIE Y UIIE'],
     action: 'Ver Soluciones Industriales',
   },
 ];

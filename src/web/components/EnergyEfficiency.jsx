@@ -35,7 +35,7 @@ export default function EnergyEfficiency() {
           </svg>
           EFICIENCIA ENERGÉTICA COMPROBADA
         </p>
-        <h2 id="energy-efficiency-title" className="mt-4 text-4xl font-bold leading-tight text-primary">Ahorrar nunca fue tan fácil: De la tarifa DAC al pago mínimo</h2>
+        <h2 id="energy-efficiency-title" className="mt-4 text-4xl font-bold leading-tight text-primary">Ahorrar nunca fue tan fácil</h2>
         <p className="mt-4 leading-relaxed text-gray-600">Con nuestro esquema de interconexión bidireccional avalado por CFE, tu sistema solar produce excedentes durante el día que se abonan en saldo a favor en la red eléctrica.</p>
       </div>
       <div className="mx-auto mt-12 grid max-w-7xl items-center gap-12 lg:grid-cols-2">
@@ -43,19 +43,19 @@ export default function EnergyEfficiency() {
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <h3 id="consumption-comparison-title" className="text-xl font-bold text-primary">Comparativo de Consumo Real</h3>
-              <p className="mt-1 text-sm text-gray-500">Caso real auditado: Residencia en Querétaro con 12 paneles solares</p>
+              <p className="mt-1 text-sm text-gray-500">Caso real auditado: Residencia en Colima con 12 paneles solares</p>
             </div>
             <span className="rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-red-700">-99.6% Reducción</span>
           </div>
           <div className="mt-6 grid grid-cols-2 gap-4">
             <div className="min-w-0 rounded-xl bg-red-50 p-3 sm:p-4">
               <h4 className="text-xs font-bold text-red-800">ANTES DE PUNTO SOLAR</h4>
-              <p className="mt-2 text-xs text-gray-600">Recibo CFE Bimestral (Tarifa DAC)</p>
-              <p className="mt-4 text-2xl font-bold text-primary sm:text-3xl">$18,450 <span className="text-sm">MXN</span></p>
+              <p className="mt-2 text-xs text-gray-600">Recibo CFE Bimestral</p>
+              <p className="mt-4 text-2xl font-bold text-primary sm:text-3xl">$15,457 <span className="text-sm">MXN</span></p>
               <ul className="mt-4 space-y-2 text-sm text-gray-600">
                 <li>Sin subsidio de gobierno</li>
                 <li>Cargo fijo por kwh excedente</li>
-                <li>Gasto acumulado: $110,700/año</li>
+                <li>Gasto acumulado: $108,523/año</li>
               </ul>
             </div>
             <div className="min-w-0 rounded-xl border border-success bg-success/10 p-3 sm:p-4">
@@ -66,7 +66,7 @@ export default function EnergyEfficiency() {
                 </svg>
               </h4>
               <p className="mt-2 text-xs text-gray-600">Nuevo Recibo interconectado CFE</p>
-              <p className="mt-4 text-2xl font-bold text-success sm:text-3xl">$67 <span className="text-sm">MXN</span></p>
+              <p className="mt-4 text-2xl font-bold text-success sm:text-3xl">$86.76 <span className="text-sm">MXN</span></p>
               <ul className="mt-4 space-y-2 text-sm text-gray-600">
                 <li>Solo pago mínimo de porteo</li>
                 <li>Medidor digital bidireccional</li>
@@ -75,7 +75,7 @@ export default function EnergyEfficiency() {
             </div>
           </div>
           <footer className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 pt-4 text-xs">
-            <p className="text-gray-500">Resultados reales bimestrales, regulados por la CRE y CFE.</p>
+            <p className="text-gray-500">Resultados reales bimestrales, regulados por la CNE y CFE.</p>
             <a href="#cotizacion" className="inline-flex min-h-11 items-center font-semibold text-accent hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">Simular mi caso →</a>
           </footer>
         </article>

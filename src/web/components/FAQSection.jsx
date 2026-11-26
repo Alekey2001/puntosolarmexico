@@ -4,10 +4,6 @@ const waUrl = 'https://wa.me/5213332175444?text=Hola%2C%20vengo%20de%20su%20siti
 
 const faqs = [
   {
-    question: '¿Cuánto tiempo tarda la instalación y el trámite de CFE?',
-    answer: 'La instalación física en tu techo demora típicamente de 2 a 4 días hábiles. El trámite administrativo de interconexión y cambio de medidor bidireccional ante CFE toma entre 15 y 20 días hábiles, el cual gestionamos íntegramente nosotros sin que tengas que acudir a ventanilla.',
-  },
-  {
     question: '¿Cómo funcionan las deducciones fiscales de paneles en México?',
     // Fuente: [Artículo 34, fracción XIII, LISR — SAT](https://wwwmat.sat.gob.mx/articulo/61054/articulo-34).
     answer: 'La LISR permite deducir el 100% de la inversión elegible en maquinaria y equipo para generar energía renovable al calcular el ISR, según el artículo 34, fracción XIII. Su aplicación depende de tu régimen y del cumplimiento de los requisitos fiscales, incluida la operación del equipo durante al menos los cinco años siguientes al ejercicio de la deducción, salvo las excepciones legales.',
